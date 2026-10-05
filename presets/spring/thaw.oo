@@ -1,0 +1,134 @@
+// # Thaw Preset - Rushing Waters and Emerald Shoots
+//
+// Logline: March theme capturing snowmelt, rushing mountain streams, and awakening emerald mosses.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for thawing marsh and mist daylight.
+//   2. Map status alerts and diff tokens with alpine green, sun yellow, and clay crimson.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn thaw_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#0E1412", 0); }
+        if tok == "ui_fg" { return color_hex("#E4EFEA", 37); }
+        if tok == "ui_surface" { return color_hex("#17211E", 0); }
+        if tok == "ui_border" { return color_hex("#2C4A3E", 90); }
+        if tok == "ui_border_accent" { return color_hex("#4ED8A3", 32); }
+        if tok == "ui_muted" { return color_hex("#7FA896", 90); }
+        if tok == "ui_dim" { return color_hex("#1F382E", 90); }
+        if tok == "ui_accent" { return color_hex("#4ED8A3", 32); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#F1F7F4", 0); }
+        if tok == "ui_fg" { return color_hex("#112E24", 30); }
+        if tok == "ui_surface" { return color_hex("#DFEDE7", 0); }
+        if tok == "ui_border" { return color_hex("#9FC5B5", 90); }
+        if tok == "ui_border_accent" { return color_hex("#0D9488", 32); }
+        if tok == "ui_muted" { return color_hex("#3B6A56", 90); }
+        if tok == "ui_dim" { return color_hex("#6E9B87", 90); }
+        if tok == "ui_accent" { return color_hex("#0D9488", 32); }
+    }
+    return color_none();
+}
+
+fn thaw_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#34D399", 32); }
+        if tok == "status_warning" { return color_hex("#FCD34D", 33); }
+        if tok == "status_error" { return color_hex("#F87171", 31); }
+        if tok == "status_info" { return color_hex("#2DD4BF", 36); }
+        if tok == "diff_added" { return color_hex("#34D399", 32); }
+        if tok == "diff_removed" { return color_hex("#F87171", 31); }
+        if tok == "diff_context" { return color_hex("#7FA896", 90); }
+        if tok == "diff_header" { return color_hex("#2DD4BF", 36); }
+    } else {
+        if tok == "status_success" { return color_hex("#059669", 32); }
+        if tok == "status_warning" { return color_hex("#B45309", 33); }
+        if tok == "status_error" { return color_hex("#BE123C", 31); }
+        if tok == "status_info" { return color_hex("#0F766E", 36); }
+        if tok == "diff_added" { return color_hex("#059669", 32); }
+        if tok == "diff_removed" { return color_hex("#BE123C", 31); }
+        if tok == "diff_context" { return color_hex("#3B6A56", 90); }
+        if tok == "diff_header" { return color_hex("#0F766E", 36); }
+    }
+    return color_none();
+}
+
+fn thaw_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#2DD4BF", 36); }
+        if tok == "syntax_string" { return color_hex("#4ED8A3", 32); }
+        if tok == "syntax_number" { return color_hex("#FCD34D", 33); }
+        if tok == "syntax_type" { return color_hex("#38BDF8", 36); }
+        if tok == "syntax_fn" { return color_hex("#6EE7B7", 32); }
+        if tok == "syntax_var" { return color_hex("#E4EFEA", 37); }
+        if tok == "syntax_comment" { return color_hex("#527566", 90); }
+        if tok == "syntax_op" { return color_hex("#2DD4BF", 36); }
+        if tok == "syntax_punct" { return color_hex("#7FA896", 90); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#0F766E", 36); }
+        if tok == "syntax_string" { return color_hex("#059669", 32); }
+        if tok == "syntax_number" { return color_hex("#B45309", 33); }
+        if tok == "syntax_type" { return color_hex("#0369A1", 34); }
+        if tok == "syntax_fn" { return color_hex("#0D9488", 32); }
+        if tok == "syntax_var" { return color_hex("#112E24", 30); }
+        if tok == "syntax_comment" { return color_hex("#3B6A56", 90); }
+        if tok == "syntax_op" { return color_hex("#0F766E", 36); }
+        if tok == "syntax_punct" { return color_hex("#3B6A56", 90); }
+    }
+    return color_none();
+}
+
+fn thaw_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#FCD34D", 33); }
+        if tok == "match_path" { return color_hex("#2DD4BF", 36); }
+        if tok == "match_line_num" { return color_hex("#4ED8A3", 32); }
+        if tok == "match_col_num" { return color_hex("#F87171", 31); }
+        if tok == "shell_prompt" { return color_hex("#4ED8A3", 32); }
+        if tok == "shell_builtin" { return color_hex("#2DD4BF", 36); }
+        if tok == "shell_host_bin" { return color_hex("#38BDF8", 36); }
+        if tok == "shell_nav" { return color_hex("#6EE7B7", 32); }
+        if tok == "shell_intent" { return color_hex("#C084FC", 35); }
+        if tok == "log_trace" { return color_hex("#1F382E", 90); }
+        if tok == "log_debug" { return color_hex("#527566", 90); }
+        if tok == "log_info" { return color_hex("#2DD4BF", 36); }
+        if tok == "log_warn" { return color_hex("#FCD34D", 33); }
+        if tok == "log_error" { return color_hex("#F87171", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#B45309", 33); }
+        if tok == "match_path" { return color_hex("#0F766E", 36); }
+        if tok == "match_line_num" { return color_hex("#059669", 32); }
+        if tok == "match_col_num" { return color_hex("#BE123C", 31); }
+        if tok == "shell_prompt" { return color_hex("#0D9488", 32); }
+        if tok == "shell_builtin" { return color_hex("#0F766E", 36); }
+        if tok == "shell_host_bin" { return color_hex("#0369A1", 34); }
+        if tok == "shell_nav" { return color_hex("#059669", 32); }
+        if tok == "shell_intent" { return color_hex("#7E22CE", 35); }
+        if tok == "log_trace" { return color_hex("#6E9B87", 90); }
+        if tok == "log_debug" { return color_hex("#3B6A56", 90); }
+        if tok == "log_info" { return color_hex("#0F766E", 36); }
+        if tok == "log_warn" { return color_hex("#B45309", 33); }
+        if tok == "log_error" { return color_hex("#BE123C", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_thaw_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = thaw_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = thaw_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = thaw_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return thaw_shell_log_token(tok, dark);
+}
+
+pub fn theme_thaw_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("thaw", "openOODA", dark, "March snowmelt mountain runoff and fresh emerald moss");
+}

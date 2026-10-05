@@ -1,0 +1,22 @@
+// # Plain Preset - Pure Monochrome Pass-Through
+//
+// Logline: Zero-color unstyled monochrome fallback for dumb terminals and headless pipelines.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Define monochrome theme metadata.
+//   2. Return unset colors for all semantic token queries across light and dark modes.
+//   3. Expose unified token color resolver.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+pub fn theme_plain_color(tok: String, dark: Bool) -> Color {
+    if tok == "" || dark { return color_none(); }
+    return color_none();
+}
+
+pub fn theme_plain_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("plain", "openOODA", dark, "Clean unstyled monochrome pass-through without ANSI codes");
+}

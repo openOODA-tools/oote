@@ -1,0 +1,134 @@
+// # 1982 Preset - Retro CRT Phosphor Terminal
+//
+// Logline: Nostalgic high-contrast phosphor green and amber aesthetic modeled after vintage 1980s terminals.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for CRT phosphor and retro paper.
+//   2. Map status alerts and diff tokens with phosphor green and alert amber.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn t82_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#050A05", 0); }
+        if tok == "ui_fg" { return color_hex("#33FF33", 32); }
+        if tok == "ui_surface" { return color_hex("#0D1A0D", 0); }
+        if tok == "ui_border" { return color_hex("#118811", 32); }
+        if tok == "ui_border_accent" { return color_hex("#33FF33", 32); }
+        if tok == "ui_muted" { return color_hex("#1E7A1E", 32); }
+        if tok == "ui_dim" { return color_hex("#0F4A0F", 32); }
+        if tok == "ui_accent" { return color_hex("#FFB000", 33); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#F0F6F0", 0); }
+        if tok == "ui_fg" { return color_hex("#0F3D0F", 32); }
+        if tok == "ui_surface" { return color_hex("#DFEADF", 0); }
+        if tok == "ui_border" { return color_hex("#7FA87F", 32); }
+        if tok == "ui_border_accent" { return color_hex("#1A7A1A", 32); }
+        if tok == "ui_muted" { return color_hex("#3D6E3D", 32); }
+        if tok == "ui_dim" { return color_hex("#5A8C5A", 32); }
+        if tok == "ui_accent" { return color_hex("#B86E00", 33); }
+    }
+    return color_none();
+}
+
+fn t82_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#33FF33", 32); }
+        if tok == "status_warning" { return color_hex("#FFB000", 33); }
+        if tok == "status_error" { return color_hex("#FF3333", 31); }
+        if tok == "status_info" { return color_hex("#33FFFF", 36); }
+        if tok == "diff_added" { return color_hex("#33FF33", 32); }
+        if tok == "diff_removed" { return color_hex("#FF3333", 31); }
+        if tok == "diff_context" { return color_hex("#1E7A1E", 32); }
+        if tok == "diff_header" { return color_hex("#FFB000", 33); }
+    } else {
+        if tok == "status_success" { return color_hex("#1A7A1A", 32); }
+        if tok == "status_warning" { return color_hex("#B86E00", 33); }
+        if tok == "status_error" { return color_hex("#C01A1A", 31); }
+        if tok == "status_info" { return color_hex("#0D7A7A", 36); }
+        if tok == "diff_added" { return color_hex("#1A7A1A", 32); }
+        if tok == "diff_removed" { return color_hex("#C01A1A", 31); }
+        if tok == "diff_context" { return color_hex("#3D6E3D", 32); }
+        if tok == "diff_header" { return color_hex("#B86E00", 33); }
+    }
+    return color_none();
+}
+
+fn t82_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#FFB000", 33); }
+        if tok == "syntax_string" { return color_hex("#33FF33", 32); }
+        if tok == "syntax_number" { return color_hex("#33FFFF", 36); }
+        if tok == "syntax_type" { return color_hex("#33FFFF", 36); }
+        if tok == "syntax_fn" { return color_hex("#66FF66", 32); }
+        if tok == "syntax_var" { return color_hex("#33FF33", 32); }
+        if tok == "syntax_comment" { return color_hex("#1E7A1E", 32); }
+        if tok == "syntax_op" { return color_hex("#FFB000", 33); }
+        if tok == "syntax_punct" { return color_hex("#1E7A1E", 32); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#B86E00", 33); }
+        if tok == "syntax_string" { return color_hex("#1A7A1A", 32); }
+        if tok == "syntax_number" { return color_hex("#0D7A7A", 36); }
+        if tok == "syntax_type" { return color_hex("#0D7A7A", 36); }
+        if tok == "syntax_fn" { return color_hex("#0F3D0F", 32); }
+        if tok == "syntax_var" { return color_hex("#0F3D0F", 32); }
+        if tok == "syntax_comment" { return color_hex("#3D6E3D", 32); }
+        if tok == "syntax_op" { return color_hex("#B86E00", 33); }
+        if tok == "syntax_punct" { return color_hex("#3D6E3D", 32); }
+    }
+    return color_none();
+}
+
+fn t82_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#FFB000", 33); }
+        if tok == "match_path" { return color_hex("#33FFFF", 36); }
+        if tok == "match_line_num" { return color_hex("#33FF33", 32); }
+        if tok == "match_col_num" { return color_hex("#FFB000", 33); }
+        if tok == "shell_prompt" { return color_hex("#33FF33", 32); }
+        if tok == "shell_builtin" { return color_hex("#FFB000", 33); }
+        if tok == "shell_host_bin" { return color_hex("#33FFFF", 36); }
+        if tok == "shell_nav" { return color_hex("#33FF33", 32); }
+        if tok == "shell_intent" { return color_hex("#FF33FF", 35); }
+        if tok == "log_trace" { return color_hex("#0F4A0F", 32); }
+        if tok == "log_debug" { return color_hex("#1E7A1E", 32); }
+        if tok == "log_info" { return color_hex("#33FFFF", 36); }
+        if tok == "log_warn" { return color_hex("#FFB000", 33); }
+        if tok == "log_error" { return color_hex("#FF3333", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#B86E00", 33); }
+        if tok == "match_path" { return color_hex("#0D7A7A", 36); }
+        if tok == "match_line_num" { return color_hex("#1A7A1A", 32); }
+        if tok == "match_col_num" { return color_hex("#B86E00", 33); }
+        if tok == "shell_prompt" { return color_hex("#1A7A1A", 32); }
+        if tok == "shell_builtin" { return color_hex("#B86E00", 33); }
+        if tok == "shell_host_bin" { return color_hex("#0D7A7A", 36); }
+        if tok == "shell_nav" { return color_hex("#1A7A1A", 32); }
+        if tok == "shell_intent" { return color_hex("#7B1FA2", 35); }
+        if tok == "log_trace" { return color_hex("#5A8C5A", 32); }
+        if tok == "log_debug" { return color_hex("#3D6E3D", 32); }
+        if tok == "log_info" { return color_hex("#0D7A7A", 36); }
+        if tok == "log_warn" { return color_hex("#B86E00", 33); }
+        if tok == "log_error" { return color_hex("#C01A1A", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_1982_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = t82_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = t82_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = t82_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return t82_shell_log_token(tok, dark);
+}
+
+pub fn theme_1982_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("1982", "openOODA", dark, "Retro CRT phosphor green and amber monochrome");
+}

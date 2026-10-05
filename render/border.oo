@@ -1,0 +1,74 @@
+// # Border Styling System - Frame and Divider Geometry
+//
+// Logline: Constructs terminal box-drawing frames and borders across multiple geometry styles.
+//
+// Setup: Pure string assembly. Operates with zero ambient authority.
+//
+// Beats:
+//   1. Define BorderChars record for frame corners and edges.
+//   2. Support round, sharp, double, and ascii border shape variants.
+//   3. Render top, bottom, divider, and wrapped row frame components.
+
+pub type BorderChars = struct {
+    tl: String,
+    tr: String,
+    bl: String,
+    br: String,
+    horiz: String,
+    vert: String
+};
+
+pub fn border_is_valid(shape: String) -> Bool {
+    return shape == "round" || shape == "sharp" || shape == "double" || shape == "ascii";
+}
+
+pub fn border_get_chars(shape: String) -> BorderChars {
+    if shape == "sharp" {
+        return BorderChars { tl: "┌", tr: "┐", bl: "└", br: "┘", horiz: "─", vert: "│" };
+    }
+    if shape == "double" {
+        return BorderChars { tl: "╔", tr: "╗", bl: "╚", br: "╝", horiz: "═", vert: "║" };
+    }
+    if shape == "ascii" {
+        return BorderChars { tl: "+", tr: "+", bl: "+", br: "+", horiz: "-", vert: "|" };
+    }
+    return BorderChars { tl: "╭", tr: "╮", bl: "╰", br: "╯", horiz: "─", vert: "│" };
+}
+
+pub fn border_repeat(ch: String, count: Int) -> String {
+    let mut out: String = "";
+    let mut i: Int = 0;
+    while i < count {
+        out = out + ch;
+        i = i + 1;
+    }
+    return out;
+}
+
+pub fn border_top_bar(width: Int, title: String, shape: String) -> String {
+    let bc: BorderChars = border_get_chars(shape);
+    if title == "" {
+        return bc.tl + border_repeat(bc.horiz, width) + bc.tr;
+    }
+    let t_len: Int = chars_len(title);
+    let rem: Int = width - t_len - 2;
+    let right_pad: Int = if rem > 0 { rem } else { 0 };
+    return bc.tl + bc.horiz + " " + title + " " + border_repeat(bc.horiz, right_pad) + bc.tr;
+}
+
+pub fn border_bottom_bar(width: Int, shape: String) -> String {
+    let bc: BorderChars = border_get_chars(shape);
+    return bc.bl + border_repeat(bc.horiz, width) + bc.br;
+}
+
+pub fn border_divider(width: Int, shape: String) -> String {
+    let bc: BorderChars = border_get_chars(shape);
+    return bc.vert + border_repeat(bc.horiz, width) + bc.vert;
+}
+
+pub fn border_wrap_line(content: String, width: Int, shape: String) -> String {
+    let bc: BorderChars = border_get_chars(shape);
+    let c_len: Int = chars_len(content);
+    let pad: Int = if width > c_len { width - c_len } else { 0 };
+    return bc.vert + " " + content + border_repeat(" ", pad) + " " + bc.vert;
+}

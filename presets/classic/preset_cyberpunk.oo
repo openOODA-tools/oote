@@ -1,0 +1,134 @@
+// # Cyberpunk Preset - Neon Cyan and Hot Magenta
+//
+// Logline: High-octane cyberpunk aesthetic with electric cyan, vivid magenta, and neon yellow.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for high-contrast neon night and daylight cyber.
+//   2. Map status alerts and diff tokens with neon green, yellow, and magenta.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn cyber_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#0F0C1B", 0); }
+        if tok == "ui_fg" { return color_hex("#00FFFF", 36); }
+        if tok == "ui_surface" { return color_hex("#1A152E", 0); }
+        if tok == "ui_border" { return color_hex("#7000FF", 35); }
+        if tok == "ui_border_accent" { return color_hex("#FF007F", 31); }
+        if tok == "ui_muted" { return color_hex("#8A75B8", 90); }
+        if tok == "ui_dim" { return color_hex("#4A3B6A", 90); }
+        if tok == "ui_accent" { return color_hex("#00FFFF", 36); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#FBF8FE", 0); }
+        if tok == "ui_fg" { return color_hex("#180A2E", 30); }
+        if tok == "ui_surface" { return color_hex("#F0E8FA", 0); }
+        if tok == "ui_border" { return color_hex("#6B21A8", 35); }
+        if tok == "ui_border_accent" { return color_hex("#B8005A", 31); }
+        if tok == "ui_muted" { return color_hex("#7A689A", 90); }
+        if tok == "ui_dim" { return color_hex("#A898C4", 90); }
+        if tok == "ui_accent" { return color_hex("#008B8B", 36); }
+    }
+    return color_none();
+}
+
+fn cyber_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#00FF66", 32); }
+        if tok == "status_warning" { return color_hex("#FFE600", 33); }
+        if tok == "status_error" { return color_hex("#FF0055", 31); }
+        if tok == "status_info" { return color_hex("#00FFFF", 36); }
+        if tok == "diff_added" { return color_hex("#00FF66", 32); }
+        if tok == "diff_removed" { return color_hex("#FF0055", 31); }
+        if tok == "diff_context" { return color_hex("#8A75B8", 90); }
+        if tok == "diff_header" { return color_hex("#FF007F", 35); }
+    } else {
+        if tok == "status_success" { return color_hex("#008A36", 32); }
+        if tok == "status_warning" { return color_hex("#8A7500", 33); }
+        if tok == "status_error" { return color_hex("#B8003A", 31); }
+        if tok == "status_info" { return color_hex("#008B8B", 36); }
+        if tok == "diff_added" { return color_hex("#008A36", 32); }
+        if tok == "diff_removed" { return color_hex("#B8003A", 31); }
+        if tok == "diff_context" { return color_hex("#7A689A", 90); }
+        if tok == "diff_header" { return color_hex("#B8005A", 35); }
+    }
+    return color_none();
+}
+
+fn cyber_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#FF007F", 31); }
+        if tok == "syntax_string" { return color_hex("#00FF66", 32); }
+        if tok == "syntax_number" { return color_hex("#FFE600", 33); }
+        if tok == "syntax_type" { return color_hex("#00FFFF", 36); }
+        if tok == "syntax_fn" { return color_hex("#7000FF", 35); }
+        if tok == "syntax_var" { return color_hex("#E8E0FF", 37); }
+        if tok == "syntax_comment" { return color_hex("#8A75B8", 90); }
+        if tok == "syntax_op" { return color_hex("#FF007F", 31); }
+        if tok == "syntax_punct" { return color_hex("#00FFFF", 36); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#B8005A", 31); }
+        if tok == "syntax_string" { return color_hex("#008A36", 32); }
+        if tok == "syntax_number" { return color_hex("#8A7500", 33); }
+        if tok == "syntax_type" { return color_hex("#008B8B", 36); }
+        if tok == "syntax_fn" { return color_hex("#6B21A8", 35); }
+        if tok == "syntax_var" { return color_hex("#180A2E", 30); }
+        if tok == "syntax_comment" { return color_hex("#7A689A", 90); }
+        if tok == "syntax_op" { return color_hex("#B8005A", 31); }
+        if tok == "syntax_punct" { return color_hex("#008B8B", 36); }
+    }
+    return color_none();
+}
+
+fn cyber_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#FFE600", 33); }
+        if tok == "match_path" { return color_hex("#00FFFF", 36); }
+        if tok == "match_line_num" { return color_hex("#00FF66", 32); }
+        if tok == "match_col_num" { return color_hex("#FF007F", 31); }
+        if tok == "shell_prompt" { return color_hex("#FF007F", 31); }
+        if tok == "shell_builtin" { return color_hex("#00FFFF", 36); }
+        if tok == "shell_host_bin" { return color_hex("#7000FF", 35); }
+        if tok == "shell_nav" { return color_hex("#00FF66", 32); }
+        if tok == "shell_intent" { return color_hex("#FFE600", 33); }
+        if tok == "log_trace" { return color_hex("#4A3B6A", 90); }
+        if tok == "log_debug" { return color_hex("#8A75B8", 90); }
+        if tok == "log_info" { return color_hex("#00FFFF", 36); }
+        if tok == "log_warn" { return color_hex("#FFE600", 33); }
+        if tok == "log_error" { return color_hex("#FF0055", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#8A7500", 33); }
+        if tok == "match_path" { return color_hex("#008B8B", 36); }
+        if tok == "match_line_num" { return color_hex("#008A36", 32); }
+        if tok == "match_col_num" { return color_hex("#B8005A", 31); }
+        if tok == "shell_prompt" { return color_hex("#B8005A", 31); }
+        if tok == "shell_builtin" { return color_hex("#008B8B", 36); }
+        if tok == "shell_host_bin" { return color_hex("#6B21A8", 35); }
+        if tok == "shell_nav" { return color_hex("#008A36", 32); }
+        if tok == "shell_intent" { return color_hex("#8A7500", 33); }
+        if tok == "log_trace" { return color_hex("#A898C4", 90); }
+        if tok == "log_debug" { return color_hex("#7A689A", 90); }
+        if tok == "log_info" { return color_hex("#008B8B", 36); }
+        if tok == "log_warn" { return color_hex("#8A7500", 33); }
+        if tok == "log_error" { return color_hex("#B8003A", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_cyberpunk_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = cyber_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = cyber_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = cyber_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return cyber_shell_log_token(tok, dark);
+}
+
+pub fn theme_cyberpunk_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("cyberpunk", "openOODA", dark, "High-octane neon cyan and magenta palette");
+}

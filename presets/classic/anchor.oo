@@ -1,0 +1,20 @@
+// # Classic Presets Subsystem Anchor - Core Catalog Re-Export
+//
+// Logline: Unified entry point aggregating canonical openOODA themes (minimax, 1982, nord, dracula, cyberpunk, plain).
+//
+// Setup: Pure shim re-exporting classic preset modules.
+//
+// Beats:
+//   1. Re-export minimax preset.
+//   2. Re-export 1982 CRT preset.
+//   3. Re-export nord polar preset.
+//   4. Re-export dracula gothic preset.
+//   5. Re-export cyberpunk neon preset.
+//   6. Re-export plain monochrome preset.
+
+import "preset_minimax.oo";
+import "preset_1982.oo";
+import "preset_nord.oo";
+import "preset_dracula.oo";
+import "preset_cyberpunk.oo";
+import "preset_plain.oo";

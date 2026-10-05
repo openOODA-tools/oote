@@ -1,0 +1,134 @@
+// # Hearth Preset - Warm Fireplace and Rustic Wood
+//
+// Logline: November theme capturing crackling hearthstones, cinnamon warmth, and rustic timber havens.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for cozy hearth night and rustic daylight.
+//   2. Map status alerts and diff tokens with sage green, terracotta, and rust red.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn hearth_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#140E0A", 0); }
+        if tok == "ui_fg" { return color_hex("#F7EDE2", 37); }
+        if tok == "ui_surface" { return color_hex("#211812", 0); }
+        if tok == "ui_border" { return color_hex("#593E2B", 90); }
+        if tok == "ui_border_accent" { return color_hex("#E07A5F", 33); }
+        if tok == "ui_muted" { return color_hex("#B89C8A", 90); }
+        if tok == "ui_dim" { return color_hex("#3B291D", 90); }
+        if tok == "ui_accent" { return color_hex("#E07A5F", 33); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#FAF4EF", 0); }
+        if tok == "ui_fg" { return color_hex("#3D2214", 30); }
+        if tok == "ui_surface" { return color_hex("#EEDFD5", 0); }
+        if tok == "ui_border" { return color_hex("#D4B59F", 90); }
+        if tok == "ui_border_accent" { return color_hex("#C84B31", 31); }
+        if tok == "ui_muted" { return color_hex("#7D4E38", 90); }
+        if tok == "ui_dim" { return color_hex("#A87A64", 90); }
+        if tok == "ui_accent" { return color_hex("#C84B31", 31); }
+    }
+    return color_none();
+}
+
+fn hearth_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#81B29A", 32); }
+        if tok == "status_warning" { return color_hex("#F2CC8F", 33); }
+        if tok == "status_error" { return color_hex("#E07A5F", 31); }
+        if tok == "status_info" { return color_hex("#94A3B8", 37); }
+        if tok == "diff_added" { return color_hex("#81B29A", 32); }
+        if tok == "diff_removed" { return color_hex("#E07A5F", 31); }
+        if tok == "diff_context" { return color_hex("#B89C8A", 90); }
+        if tok == "diff_header" { return color_hex("#F2CC8F", 33); }
+    } else {
+        if tok == "status_success" { return color_hex("#3D7B5F", 32); }
+        if tok == "status_warning" { return color_hex("#A45A2A", 33); }
+        if tok == "status_error" { return color_hex("#C84B31", 31); }
+        if tok == "status_info" { return color_hex("#475569", 90); }
+        if tok == "diff_added" { return color_hex("#3D7B5F", 32); }
+        if tok == "diff_removed" { return color_hex("#C84B31", 31); }
+        if tok == "diff_context" { return color_hex("#7D4E38", 90); }
+        if tok == "diff_header" { return color_hex("#A45A2A", 33); }
+    }
+    return color_none();
+}
+
+fn hearth_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#E07A5F", 33); }
+        if tok == "syntax_string" { return color_hex("#81B29A", 32); }
+        if tok == "syntax_number" { return color_hex("#F2CC8F", 33); }
+        if tok == "syntax_type" { return color_hex("#E29578", 33); }
+        if tok == "syntax_fn" { return color_hex("#F2CC8F", 33); }
+        if tok == "syntax_var" { return color_hex("#F7EDE2", 37); }
+        if tok == "syntax_comment" { return color_hex("#7D5E48", 90); }
+        if tok == "syntax_op" { return color_hex("#E07A5F", 33); }
+        if tok == "syntax_punct" { return color_hex("#B89C8A", 90); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#C84B31", 31); }
+        if tok == "syntax_string" { return color_hex("#3D7B5F", 32); }
+        if tok == "syntax_number" { return color_hex("#A45A2A", 33); }
+        if tok == "syntax_type" { return color_hex("#9E3D22", 31); }
+        if tok == "syntax_fn" { return color_hex("#7A3E1D", 33); }
+        if tok == "syntax_var" { return color_hex("#3D2214", 30); }
+        if tok == "syntax_comment" { return color_hex("#7D4E38", 90); }
+        if tok == "syntax_op" { return color_hex("#C84B31", 31); }
+        if tok == "syntax_punct" { return color_hex("#7D4E38", 90); }
+    }
+    return color_none();
+}
+
+fn hearth_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#F2CC8F", 33); }
+        if tok == "match_path" { return color_hex("#E07A5F", 33); }
+        if tok == "match_line_num" { return color_hex("#81B29A", 32); }
+        if tok == "match_col_num" { return color_hex("#E29578", 33); }
+        if tok == "shell_prompt" { return color_hex("#E07A5F", 33); }
+        if tok == "shell_builtin" { return color_hex("#F2CC8F", 33); }
+        if tok == "shell_host_bin" { return color_hex("#81B29A", 32); }
+        if tok == "shell_nav" { return color_hex("#F2CC8F", 33); }
+        if tok == "shell_intent" { return color_hex("#E29578", 33); }
+        if tok == "log_trace" { return color_hex("#3B291D", 90); }
+        if tok == "log_debug" { return color_hex("#7D5E48", 90); }
+        if tok == "log_info" { return color_hex("#81B29A", 32); }
+        if tok == "log_warn" { return color_hex("#F2CC8F", 33); }
+        if tok == "log_error" { return color_hex("#E07A5F", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#A45A2A", 33); }
+        if tok == "match_path" { return color_hex("#C84B31", 31); }
+        if tok == "match_line_num" { return color_hex("#3D7B5F", 32); }
+        if tok == "match_col_num" { return color_hex("#9E3D22", 31); }
+        if tok == "shell_prompt" { return color_hex("#C84B31", 31); }
+        if tok == "shell_builtin" { return color_hex("#A45A2A", 33); }
+        if tok == "shell_host_bin" { return color_hex("#3D7B5F", 32); }
+        if tok == "shell_nav" { return color_hex("#A45A2A", 33); }
+        if tok == "shell_intent" { return color_hex("#9E3D22", 31); }
+        if tok == "log_trace" { return color_hex("#A87A64", 90); }
+        if tok == "log_debug" { return color_hex("#7D4E38", 90); }
+        if tok == "log_info" { return color_hex("#3D7B5F", 32); }
+        if tok == "log_warn" { return color_hex("#A45A2A", 33); }
+        if tok == "log_error" { return color_hex("#C84B31", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_hearth_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = hearth_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = hearth_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = hearth_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return hearth_shell_log_token(tok, dark);
+}
+
+pub fn theme_hearth_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("hearth", "openOODA", dark, "November stone fireplace warmth and rustic cinnamon");
+}

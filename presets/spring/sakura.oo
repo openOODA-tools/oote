@@ -1,0 +1,134 @@
+// # Sakura Preset - Spring Equinox Cherry Blossom
+//
+// Logline: Holiday theme honoring Spring Equinox with delicate cherry blossom petals and matcha green.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for spring twilight and cherry daylight.
+//   2. Map status alerts and diff tokens with matcha green, blossom rose, and golden pollen.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn sakura_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#181014", 0); }
+        if tok == "ui_fg" { return color_hex("#FFF1F2", 37); }
+        if tok == "ui_surface" { return color_hex("#261A20", 0); }
+        if tok == "ui_border" { return color_hex("#5C3645", 90); }
+        if tok == "ui_border_accent" { return color_hex("#FB7185", 31); }
+        if tok == "ui_muted" { return color_hex("#B88697", 90); }
+        if tok == "ui_dim" { return color_hex("#3D212E", 90); }
+        if tok == "ui_accent" { return color_hex("#FB7185", 31); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#FFF1F2", 0); }
+        if tok == "ui_fg" { return color_hex("#4C0519", 30); }
+        if tok == "ui_surface" { return color_hex("#FFE4E6", 0); }
+        if tok == "ui_border" { return color_hex("#FDA4AF", 90); }
+        if tok == "ui_border_accent" { return color_hex("#E11D48", 31); }
+        if tok == "ui_muted" { return color_hex("#881337", 90); }
+        if tok == "ui_dim" { return color_hex("#BE123C", 90); }
+        if tok == "ui_accent" { return color_hex("#E11D48", 31); }
+    }
+    return color_none();
+}
+
+fn sakura_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#86EFAC", 32); }
+        if tok == "status_warning" { return color_hex("#FDE047", 33); }
+        if tok == "status_error" { return color_hex("#FB7185", 31); }
+        if tok == "status_info" { return color_hex("#F472B6", 35); }
+        if tok == "diff_added" { return color_hex("#86EFAC", 32); }
+        if tok == "diff_removed" { return color_hex("#FB7185", 31); }
+        if tok == "diff_context" { return color_hex("#B88697", 90); }
+        if tok == "diff_header" { return color_hex("#FB7185", 31); }
+    } else {
+        if tok == "status_success" { return color_hex("#16A34A", 32); }
+        if tok == "status_warning" { return color_hex("#B45309", 33); }
+        if tok == "status_error" { return color_hex("#BE123C", 31); }
+        if tok == "status_info" { return color_hex("#DB2777", 35); }
+        if tok == "diff_added" { return color_hex("#16A34A", 32); }
+        if tok == "diff_removed" { return color_hex("#BE123C", 31); }
+        if tok == "diff_context" { return color_hex("#881337", 90); }
+        if tok == "diff_header" { return color_hex("#E11D48", 31); }
+    }
+    return color_none();
+}
+
+fn sakura_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#F472B6", 35); }
+        if tok == "syntax_string" { return color_hex("#86EFAC", 32); }
+        if tok == "syntax_number" { return color_hex("#FDE047", 33); }
+        if tok == "syntax_type" { return color_hex("#FDA4AF", 31); }
+        if tok == "syntax_fn" { return color_hex("#FB7185", 31); }
+        if tok == "syntax_var" { return color_hex("#FFF1F2", 37); }
+        if tok == "syntax_comment" { return color_hex("#7F4E5E", 90); }
+        if tok == "syntax_op" { return color_hex("#F472B6", 35); }
+        if tok == "syntax_punct" { return color_hex("#B88697", 90); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#BE123C", 31); }
+        if tok == "syntax_string" { return color_hex("#16A34A", 32); }
+        if tok == "syntax_number" { return color_hex("#B45309", 33); }
+        if tok == "syntax_type" { return color_hex("#9F1239", 31); }
+        if tok == "syntax_fn" { return color_hex("#E11D48", 31); }
+        if tok == "syntax_var" { return color_hex("#4C0519", 30); }
+        if tok == "syntax_comment" { return color_hex("#881337", 90); }
+        if tok == "syntax_op" { return color_hex("#BE123C", 31); }
+        if tok == "syntax_punct" { return color_hex("#881337", 90); }
+    }
+    return color_none();
+}
+
+fn sakura_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#FDE047", 33); }
+        if tok == "match_path" { return color_hex("#F472B6", 35); }
+        if tok == "match_line_num" { return color_hex("#86EFAC", 32); }
+        if tok == "match_col_num" { return color_hex("#FB7185", 31); }
+        if tok == "shell_prompt" { return color_hex("#FB7185", 31); }
+        if tok == "shell_builtin" { return color_hex("#F472B6", 35); }
+        if tok == "shell_host_bin" { return color_hex("#FDA4AF", 31); }
+        if tok == "shell_nav" { return color_hex("#86EFAC", 32); }
+        if tok == "shell_intent" { return color_hex("#FDE047", 33); }
+        if tok == "log_trace" { return color_hex("#3D212E", 90); }
+        if tok == "log_debug" { return color_hex("#7F4E5E", 90); }
+        if tok == "log_info" { return color_hex("#F472B6", 35); }
+        if tok == "log_warn" { return color_hex("#FDE047", 33); }
+        if tok == "log_error" { return color_hex("#FB7185", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#B45309", 33); }
+        if tok == "match_path" { return color_hex("#DB2777", 35); }
+        if tok == "match_line_num" { return color_hex("#16A34A", 32); }
+        if tok == "match_col_num" { return color_hex("#BE123C", 31); }
+        if tok == "shell_prompt" { return color_hex("#E11D48", 31); }
+        if tok == "shell_builtin" { return color_hex("#BE123C", 31); }
+        if tok == "shell_host_bin" { return color_hex("#9F1239", 31); }
+        if tok == "shell_nav" { return color_hex("#16A34A", 32); }
+        if tok == "shell_intent" { return color_hex("#A16207", 33); }
+        if tok == "log_trace" { return color_hex("#BE123C", 90); }
+        if tok == "log_debug" { return color_hex("#881337", 90); }
+        if tok == "log_info" { return color_hex("#DB2777", 35); }
+        if tok == "log_warn" { return color_hex("#B45309", 33); }
+        if tok == "log_error" { return color_hex("#BE123C", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_sakura_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = sakura_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = sakura_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = sakura_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return sakura_shell_log_token(tok, dark);
+}
+
+pub fn theme_sakura_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("sakura", "openOODA", dark, "Spring Equinox celebration cherry blossom and matcha green");
+}

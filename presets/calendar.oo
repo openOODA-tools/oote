@@ -1,0 +1,59 @@
+// # Calendar Theme Resolver - Holiday Windows and Monthly Cycles
+//
+// Logline: Maps calendar month and day coordinates to seasonal themes and holiday windows.
+//
+// Setup: Pure algorithmic date matching. Operates with zero ambient authority.
+//
+// Beats:
+//   1. Evaluate major holiday date windows (nova, lantern, sakura, sol, spooky, harvest, yule).
+//   2. Resolve monthly themes across the 12-month calendar cycle.
+//   3. Dispatch automated calendar theme selection.
+
+pub fn holiday_for_date(m: Int, d: Int) -> String {
+    if (m == 12 && d == 31) || (m == 1 && (d == 1 || d == 2)) {
+        return "nova";
+    }
+    if m == 2 && d >= 1 && d <= 10 {
+        return "lantern";
+    }
+    if m == 3 && d >= 18 && d <= 24 {
+        return "sakura";
+    }
+    if m == 6 && d >= 18 && d <= 24 {
+        return "sol";
+    }
+    if m == 10 && d >= 25 && d <= 31 {
+        return "spooky";
+    }
+    if m == 11 && d >= 22 && d <= 28 {
+        return "harvest";
+    }
+    if m == 12 && d >= 20 && d <= 26 {
+        return "yule";
+    }
+    return "";
+}
+
+pub fn month_theme_for_date(m: Int) -> String {
+    if m == 1 { return "frost"; }
+    if m == 2 { return "amethyst"; }
+    if m == 3 { return "thaw"; }
+    if m == 4 { return "bloom"; }
+    if m == 5 { return "meadow"; }
+    if m == 6 { return "solstice"; }
+    if m == 7 { return "mirage"; }
+    if m == 8 { return "amber"; }
+    if m == 9 { return "equinox"; }
+    if m == 10 { return "ember"; }
+    if m == 11 { return "hearth"; }
+    if m == 12 { return "solitude"; }
+    return "minimax";
+}
+
+pub fn calendar_auto_theme(m: Int, d: Int) -> String {
+    let holiday: String = holiday_for_date(m, d);
+    if holiday != "" {
+        return holiday;
+    }
+    return month_theme_for_date(m);
+}

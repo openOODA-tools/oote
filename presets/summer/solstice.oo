@@ -1,0 +1,134 @@
+// # Solstice Preset - Midsummer Sunlight and Azure Sky
+//
+// Logline: June theme capturing high midsummer sun, electric daylight, radiant gold, and azure sky.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for midsummer dusk and brilliant noon.
+//   2. Map status alerts and diff tokens with emerald, solar gold, and ember ruby.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn solstice_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#0F1722", 0); }
+        if tok == "ui_fg" { return color_hex("#F8FAFC", 37); }
+        if tok == "ui_surface" { return color_hex("#1A2433", 0); }
+        if tok == "ui_border" { return color_hex("#334D6E", 90); }
+        if tok == "ui_border_accent" { return color_hex("#FBBF24", 33); }
+        if tok == "ui_muted" { return color_hex("#94A3B8", 90); }
+        if tok == "ui_dim" { return color_hex("#243345", 90); }
+        if tok == "ui_accent" { return color_hex("#FBBF24", 33); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#FEFCE8", 0); }
+        if tok == "ui_fg" { return color_hex("#3E2C04", 30); }
+        if tok == "ui_surface" { return color_hex("#FEF08A", 0); }
+        if tok == "ui_border" { return color_hex("#FDE047", 90); }
+        if tok == "ui_border_accent" { return color_hex("#CA8A04", 33); }
+        if tok == "ui_muted" { return color_hex("#854D0E", 90); }
+        if tok == "ui_dim" { return color_hex("#A16207", 90); }
+        if tok == "ui_accent" { return color_hex("#CA8A04", 33); }
+    }
+    return color_none();
+}
+
+fn solstice_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#34D399", 32); }
+        if tok == "status_warning" { return color_hex("#FBBF24", 33); }
+        if tok == "status_error" { return color_hex("#F87171", 31); }
+        if tok == "status_info" { return color_hex("#38BDF8", 36); }
+        if tok == "diff_added" { return color_hex("#34D399", 32); }
+        if tok == "diff_removed" { return color_hex("#F87171", 31); }
+        if tok == "diff_context" { return color_hex("#94A3B8", 90); }
+        if tok == "diff_header" { return color_hex("#FBBF24", 33); }
+    } else {
+        if tok == "status_success" { return color_hex("#15803D", 32); }
+        if tok == "status_warning" { return color_hex("#A16207", 33); }
+        if tok == "status_error" { return color_hex("#DC2626", 31); }
+        if tok == "status_info" { return color_hex("#0284C7", 36); }
+        if tok == "diff_added" { return color_hex("#15803D", 32); }
+        if tok == "diff_removed" { return color_hex("#DC2626", 31); }
+        if tok == "diff_context" { return color_hex("#854D0E", 90); }
+        if tok == "diff_header" { return color_hex("#A16207", 33); }
+    }
+    return color_none();
+}
+
+fn solstice_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#FCD34D", 33); }
+        if tok == "syntax_string" { return color_hex("#34D399", 32); }
+        if tok == "syntax_number" { return color_hex("#F87171", 31); }
+        if tok == "syntax_type" { return color_hex("#38BDF8", 36); }
+        if tok == "syntax_fn" { return color_hex("#FBBF24", 33); }
+        if tok == "syntax_var" { return color_hex("#F8FAFC", 37); }
+        if tok == "syntax_comment" { return color_hex("#5C6B7E", 90); }
+        if tok == "syntax_op" { return color_hex("#FCD34D", 33); }
+        if tok == "syntax_punct" { return color_hex("#94A3B8", 90); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#A16207", 33); }
+        if tok == "syntax_string" { return color_hex("#15803D", 32); }
+        if tok == "syntax_number" { return color_hex("#DC2626", 31); }
+        if tok == "syntax_type" { return color_hex("#0284C7", 36); }
+        if tok == "syntax_fn" { return color_hex("#CA8A04", 33); }
+        if tok == "syntax_var" { return color_hex("#3E2C04", 30); }
+        if tok == "syntax_comment" { return color_hex("#854D0E", 90); }
+        if tok == "syntax_op" { return color_hex("#A16207", 33); }
+        if tok == "syntax_punct" { return color_hex("#854D0E", 90); }
+    }
+    return color_none();
+}
+
+fn solstice_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#FBBF24", 33); }
+        if tok == "match_path" { return color_hex("#38BDF8", 36); }
+        if tok == "match_line_num" { return color_hex("#34D399", 32); }
+        if tok == "match_col_num" { return color_hex("#F87171", 31); }
+        if tok == "shell_prompt" { return color_hex("#FBBF24", 33); }
+        if tok == "shell_builtin" { return color_hex("#FCD34D", 33); }
+        if tok == "shell_host_bin" { return color_hex("#38BDF8", 36); }
+        if tok == "shell_nav" { return color_hex("#34D399", 32); }
+        if tok == "shell_intent" { return color_hex("#C084FC", 35); }
+        if tok == "log_trace" { return color_hex("#243345", 90); }
+        if tok == "log_debug" { return color_hex("#5C6B7E", 90); }
+        if tok == "log_info" { return color_hex("#38BDF8", 36); }
+        if tok == "log_warn" { return color_hex("#FBBF24", 33); }
+        if tok == "log_error" { return color_hex("#F87171", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#A16207", 33); }
+        if tok == "match_path" { return color_hex("#0284C7", 36); }
+        if tok == "match_line_num" { return color_hex("#15803D", 32); }
+        if tok == "match_col_num" { return color_hex("#DC2626", 31); }
+        if tok == "shell_prompt" { return color_hex("#CA8A04", 33); }
+        if tok == "shell_builtin" { return color_hex("#A16207", 33); }
+        if tok == "shell_host_bin" { return color_hex("#0284C7", 36); }
+        if tok == "shell_nav" { return color_hex("#15803D", 32); }
+        if tok == "shell_intent" { return color_hex("#7E22CE", 35); }
+        if tok == "log_trace" { return color_hex("#A16207", 90); }
+        if tok == "log_debug" { return color_hex("#854D0E", 90); }
+        if tok == "log_info" { return color_hex("#0284C7", 36); }
+        if tok == "log_warn" { return color_hex("#A16207", 33); }
+        if tok == "log_error" { return color_hex("#DC2626", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_solstice_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = solstice_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = solstice_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = solstice_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return solstice_shell_log_token(tok, dark);
+}
+
+pub fn theme_solstice_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("solstice", "openOODA", dark, "June high midsummer sun and electric azure sky");
+}

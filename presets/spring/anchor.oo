@@ -1,0 +1,18 @@
+// # Spring Presets Subsystem Anchor - Spring Catalog Re-Export
+//
+// Logline: Unified entry point aggregating spring monthly themes and holiday windows (thaw, bloom, meadow, lantern, sakura).
+//
+// Setup: Pure shim re-exporting spring preset modules.
+//
+// Beats:
+//   1. Re-export thaw preset (March).
+//   2. Re-export bloom preset (April).
+//   3. Re-export meadow preset (May).
+//   4. Re-export lantern holiday preset (Lunar New Year).
+//   5. Re-export sakura holiday preset (Spring Equinox).
+
+import "thaw.oo";
+import "bloom.oo";
+import "meadow.oo";
+import "lantern.oo";
+import "sakura.oo";

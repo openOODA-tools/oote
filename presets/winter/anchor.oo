@@ -1,0 +1,18 @@
+// # Winter Presets Subsystem Anchor - Winter Catalog Re-Export
+//
+// Logline: Unified entry point aggregating winter monthly themes and holiday windows (frost, amethyst, solitude, yule, nova).
+//
+// Setup: Pure shim re-exporting winter preset modules.
+//
+// Beats:
+//   1. Re-export frost preset (January).
+//   2. Re-export amethyst preset (February).
+//   3. Re-export solitude preset (December).
+//   4. Re-export yule holiday preset (Winter Holidays).
+//   5. Re-export nova holiday preset (New Year).
+
+import "frost.oo";
+import "amethyst.oo";
+import "solitude.oo";
+import "yule.oo";
+import "nova.oo";

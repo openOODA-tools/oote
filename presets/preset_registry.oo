@@ -1,54 +1,117 @@
 // # Theme Registry - Catalog Dispatcher
 //
-// Logline: Unified theme catalog dispatcher routing token queries to registered presets.
+// Logline: Unified theme catalog dispatcher routing token and metadata queries to all registered presets.
 //
-// Setup: Pure routing. Imports spec models and all built-in preset definitions.
+// Setup: Pure routing. Imports spec models and all seasonal preset definitions.
 //
 // Beats:
-//   1. Enumerate all registered theme names in standard display order.
-//   2. Validate whether a requested theme name is known.
-//   3. Route semantic token color queries to the matching preset.
-//   4. Route metadata queries to the matching preset.
+//   1. Enumerate all 25 registered themes across classic, monthly, and holiday categories.
+//   2. Validate whether a requested theme name is recognized.
+//   3. Route semantic token color queries with dual light and dark mode switches.
+//   4. Route metadata queries with dual light and dark mode flags.
 
 import "spec/color_model.oo";
 import "spec/theme_model.oo";
-import "preset_minimax.oo";
-import "preset_1982.oo";
-import "preset_nord.oo";
-import "preset_dracula.oo";
-import "preset_cyberpunk.oo";
-import "preset_plain.oo";
+import "classic/preset_minimax.oo";
+import "classic/preset_1982.oo";
+import "classic/preset_nord.oo";
+import "classic/preset_dracula.oo";
+import "classic/preset_cyberpunk.oo";
+import "classic/preset_plain.oo";
+import "winter/frost.oo";
+import "winter/amethyst.oo";
+import "winter/solitude.oo";
+import "winter/yule.oo";
+import "winter/nova.oo";
+import "spring/thaw.oo";
+import "spring/bloom.oo";
+import "spring/meadow.oo";
+import "spring/lantern.oo";
+import "spring/sakura.oo";
+import "summer/solstice.oo";
+import "summer/mirage.oo";
+import "summer/amber.oo";
+import "summer/sol.oo";
+import "autumn/equinox.oo";
+import "autumn/ember.oo";
+import "autumn/hearth.oo";
+import "autumn/spooky.oo";
+import "autumn/harvest.oo";
 
 pub fn theme_list() -> String {
-    return "minimax 1982 nord dracula cyberpunk plain";
+    return "minimax 1982 nord dracula cyberpunk plain " +
+           "frost amethyst thaw bloom meadow solstice mirage amber equinox ember hearth solitude " +
+           "spooky yule nova harvest lantern sakura sol";
 }
 
 pub fn theme_is_valid(name: String) -> Bool {
-    if name == "minimax" { return true; }
-    if name == "1982" { return true; }
-    if name == "nord" { return true; }
-    if name == "dracula" { return true; }
-    if name == "cyberpunk" { return true; }
-    if name == "plain" { return true; }
-    return false;
+    let t: String = " " + name + " ";
+    let haystack: String = " " + theme_list() + " ";
+    return str_contains(haystack, t);
+}
+
+pub fn theme_get_color_mode(name: String, tok: String, dark: Bool) -> Color {
+    if name == "minimax" { return theme_minimax_color(tok, dark); }
+    if name == "1982" { return theme_1982_color(tok, dark); }
+    if name == "nord" { return theme_nord_color(tok, dark); }
+    if name == "dracula" { return theme_dracula_color(tok, dark); }
+    if name == "cyberpunk" { return theme_cyberpunk_color(tok, dark); }
+    if name == "plain" { return theme_plain_color(tok, dark); }
+    if name == "frost" { return theme_frost_color(tok, dark); }
+    if name == "amethyst" { return theme_amethyst_color(tok, dark); }
+    if name == "solitude" { return theme_solitude_color(tok, dark); }
+    if name == "yule" { return theme_yule_color(tok, dark); }
+    if name == "nova" { return theme_nova_color(tok, dark); }
+    if name == "thaw" { return theme_thaw_color(tok, dark); }
+    if name == "bloom" { return theme_bloom_color(tok, dark); }
+    if name == "meadow" { return theme_meadow_color(tok, dark); }
+    if name == "lantern" { return theme_lantern_color(tok, dark); }
+    if name == "sakura" { return theme_sakura_color(tok, dark); }
+    if name == "solstice" { return theme_solstice_color(tok, dark); }
+    if name == "mirage" { return theme_mirage_color(tok, dark); }
+    if name == "amber" { return theme_amber_color(tok, dark); }
+    if name == "sol" { return theme_sol_color(tok, dark); }
+    if name == "equinox" { return theme_equinox_color(tok, dark); }
+    if name == "ember" { return theme_ember_color(tok, dark); }
+    if name == "hearth" { return theme_hearth_color(tok, dark); }
+    if name == "spooky" { return theme_spooky_color(tok, dark); }
+    if name == "harvest" { return theme_harvest_color(tok, dark); }
+    return theme_minimax_color(tok, dark);
 }
 
 pub fn theme_get_color(name: String, tok: String) -> Color {
-    if name == "minimax" { return theme_minimax_color(tok); }
-    if name == "1982" { return theme_1982_color(tok); }
-    if name == "nord" { return theme_nord_color(tok); }
-    if name == "dracula" { return theme_dracula_color(tok); }
-    if name == "cyberpunk" { return theme_cyberpunk_color(tok); }
-    if name == "plain" { return theme_plain_color(tok); }
-    return theme_minimax_color(tok);
+    return theme_get_color_mode(name, tok, true);
+}
+
+pub fn theme_get_meta_mode(name: String, dark: Bool) -> ThemeMeta {
+    if name == "minimax" { return theme_minimax_meta(dark); }
+    if name == "1982" { return theme_1982_meta(dark); }
+    if name == "nord" { return theme_nord_meta(dark); }
+    if name == "dracula" { return theme_dracula_meta(dark); }
+    if name == "cyberpunk" { return theme_cyberpunk_meta(dark); }
+    if name == "plain" { return theme_plain_meta(dark); }
+    if name == "frost" { return theme_frost_meta(dark); }
+    if name == "amethyst" { return theme_amethyst_meta(dark); }
+    if name == "solitude" { return theme_solitude_meta(dark); }
+    if name == "yule" { return theme_yule_meta(dark); }
+    if name == "nova" { return theme_nova_meta(dark); }
+    if name == "thaw" { return theme_thaw_meta(dark); }
+    if name == "bloom" { return theme_bloom_meta(dark); }
+    if name == "meadow" { return theme_meadow_meta(dark); }
+    if name == "lantern" { return theme_lantern_meta(dark); }
+    if name == "sakura" { return theme_sakura_meta(dark); }
+    if name == "solstice" { return theme_solstice_meta(dark); }
+    if name == "mirage" { return theme_mirage_meta(dark); }
+    if name == "amber" { return theme_amber_meta(dark); }
+    if name == "sol" { return theme_sol_meta(dark); }
+    if name == "equinox" { return theme_equinox_meta(dark); }
+    if name == "ember" { return theme_ember_meta(dark); }
+    if name == "hearth" { return theme_hearth_meta(dark); }
+    if name == "spooky" { return theme_spooky_meta(dark); }
+    if name == "harvest" { return theme_harvest_meta(dark); }
+    return theme_minimax_meta(dark);
 }
 
 pub fn theme_get_meta(name: String) -> ThemeMeta {
-    if name == "minimax" { return theme_minimax_meta(); }
-    if name == "1982" { return theme_1982_meta(); }
-    if name == "nord" { return theme_nord_meta(); }
-    if name == "dracula" { return theme_dracula_meta(); }
-    if name == "cyberpunk" { return theme_cyberpunk_meta(); }
-    if name == "plain" { return theme_plain_meta(); }
-    return theme_minimax_meta();
+    return theme_get_meta_mode(name, true);
 }

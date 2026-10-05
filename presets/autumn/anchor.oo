@@ -1,0 +1,18 @@
+// # Autumn Presets Subsystem Anchor - Autumn Catalog Re-Export
+//
+// Logline: Unified entry point aggregating autumn monthly themes and holiday windows (equinox, ember, hearth, spooky, harvest).
+//
+// Setup: Pure shim re-exporting autumn preset modules.
+//
+// Beats:
+//   1. Re-export equinox preset (September).
+//   2. Re-export ember preset (October).
+//   3. Re-export hearth preset (November).
+//   4. Re-export spooky holiday preset (Halloween).
+//   5. Re-export harvest holiday preset (Thanksgiving).
+
+import "equinox.oo";
+import "ember.oo";
+import "hearth.oo";
+import "spooky.oo";
+import "harvest.oo";

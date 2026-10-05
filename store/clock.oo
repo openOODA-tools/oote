@@ -1,0 +1,155 @@
+// # Clock Subsystem - Real-Time and Monotonic Time Hydration
+//
+// Logline: Acquires calendar date and time metrics using RTC device readings, epoch timestamps, or env overrides.
+//
+// Setup: Requires FsReadCap, EnvCap, and TimeCap under sovereign OCap discipline.
+//
+// Beats:
+//   1. Resolve calendar date and circadian hour from environment overrides if present.
+//   2. Parse kernel RTC device telemetry (/proc/driver/rtc) under FsReadCap.
+//   3. Compute Gregorian calendar date from epoch milliseconds under TimeCap.
+//   4. Expose circadian day/night lighting classification (06:00-17:59 light, 18:00-05:59 dark).
+
+import "std/fs/file/file_reader.oo";
+import "std/fs/process/env.oo";
+
+pub type CalendarDate = struct {
+    year: Int,
+    month: Int,
+    day: Int,
+    hour: Int,
+    minute: Int
+};
+
+pub fn calendar_date_new(y: Int, m: Int, d: Int, h: Int, min: Int) -> CalendarDate {
+    return CalendarDate { year: y, month: m, day: d, hour: h, minute: min };
+}
+
+fn digit_val(c: String) -> Int {
+    if c == "1" { return 1; }
+    if c == "2" { return 2; }
+    if c == "3" { return 3; }
+    if c == "4" { return 4; }
+    if c == "5" { return 5; }
+    if c == "6" { return 6; }
+    if c == "7" { return 7; }
+    if c == "8" { return 8; }
+    if c == "9" { return 9; }
+    return 0;
+}
+
+fn parse_int(s: String) -> Int {
+    let mut v: Int = 0;
+    let n: Int = chars_len(s);
+    let mut i: Int = 0;
+    while i < n {
+        v = v * 10 + digit_val(char_at(s, i));
+        i = i + 1;
+    }
+    return v;
+}
+
+fn parse_two_digits(s: String, start: Int) -> Int {
+    if chars_len(s) < start + 2 { return 0; }
+    let c0: Int = digit_val(char_at(s, start));
+    let c1: Int = digit_val(char_at(s, start + 1));
+    return c0 * 10 + c1;
+}
+
+pub fn clock_is_dark(hour: Int) -> Bool {
+    return hour < 6 || hour >= 18;
+}
+
+pub fn clock_from_epoch(ms: Int) -> CalendarDate {
+    let epoch_secs: Int = ms / 1000;
+    let total_days: Int = epoch_secs / 86400;
+    let day_secs: Int = epoch_secs % 86400;
+    let hour: Int = day_secs / 3600;
+    let minute: Int = (day_secs % 3600) / 60;
+    let mut y: Int = 1970;
+    let mut d: Int = total_days;
+    while true {
+        let leap: Bool = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+        let diy: Int = if leap { 366 } else { 365 };
+        if d < diy { break; }
+        d = d - diy;
+        y = y + 1;
+    }
+    let leap: Bool = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+    let mut m: Int = 1;
+    while m <= 12 {
+        let dim: Int = if m == 2 {
+            if leap { 29 } else { 28 }
+        } else if m == 4 || m == 6 || m == 9 || m == 11 {
+            30
+        } else {
+            31
+        };
+        if d < dim { break; }
+        d = d - dim;
+        m = m + 1;
+    }
+    let day: Int = d + 1;
+    return CalendarDate { year: y, month: m, day: day, hour: hour, minute: minute };
+}
+
+pub fn clock_from_rtc(fs_r: &FsReadCap) -> CalendarDate {
+    if !path_exists(fs_r, "/proc/driver/rtc") {
+        return CalendarDate { year: 2026, month: 10, day: 5, hour: 12, minute: 0 };
+    }
+    let r_open: Result[FileReader, String] = file_reader_open(fs_r, "/proc/driver/rtc");
+    let reader: FileReader = match r_open { Ok(r) => r, Err(_) => return CalendarDate { year: 2026, month: 10, day: 5, hour: 12, minute: 0 } };
+    let r_read: Result[String, String] = file_reader_read_all(fs_r, reader);
+    let body: String = match r_read { Ok(s) => s, Err(_) => "" };
+    let mut y: Int = 2026;
+    let mut m: Int = 10;
+    let mut d: Int = 5;
+    let mut h: Int = 12;
+    let mut min: Int = 0;
+    let d_idx: Int = str_index_of(body, "rtc_date\t: ");
+    if d_idx >= 0 {
+        let date_str: String = str_slice(body, d_idx + 11, d_idx + 21);
+        if chars_len(date_str) >= 10 {
+            y = parse_int(str_slice(date_str, 0, 4));
+            m = parse_two_digits(date_str, 5);
+            d = parse_two_digits(date_str, 8);
+        }
+    }
+    let t_idx: Int = str_index_of(body, "rtc_time\t: ");
+    if t_idx >= 0 {
+        let time_str: String = str_slice(body, t_idx + 11, t_idx + 19);
+        if chars_len(time_str) >= 5 {
+            h = parse_two_digits(time_str, 0);
+            min = parse_two_digits(time_str, 3);
+        }
+    }
+    return CalendarDate { year: y, month: m, day: d, hour: h, minute: min };
+}
+
+pub fn clock_probe(fs_r: &FsReadCap, env: &EnvCap, time: &TimeCap) -> CalendarDate {
+    let env_d: Result[String, String] = env_get(env, "OODA_DATE");
+    let d_str: String = match env_d { Ok(s) => s, Err(_) => "" };
+    let env_h: Result[String, String] = env_get(env, "OODA_HOUR");
+    let h_str: String = match env_h { Ok(s) => s, Err(_) => "" };
+    if d_str != "" && chars_len(d_str) >= 10 {
+        let y: Int = parse_int(str_slice(d_str, 0, 4));
+        let m: Int = parse_two_digits(d_str, 5);
+        let d: Int = parse_two_digits(d_str, 8);
+        let h: Int = if h_str != "" { parse_int(h_str) } else { 12 };
+        return CalendarDate { year: y, month: m, day: d, hour: h, minute: 0 };
+    }
+    let rtc_dt: CalendarDate = clock_from_rtc(fs_r);
+    if rtc_dt.year > 1970 {
+        let tz_res: Result[String, String] = env_get(env, "TZ_OFFSET");
+        let tz_s: String = match tz_res { Ok(s) => s, Err(_) => "" };
+        if tz_s != "" {
+            let offset: Int = parse_int(tz_s);
+            let mut adjusted_h: Int = (rtc_dt.hour + offset) % 24;
+            if adjusted_h < 0 { adjusted_h = adjusted_h + 24; }
+            return CalendarDate { year: rtc_dt.year, month: rtc_dt.month, day: rtc_dt.day, hour: adjusted_h, minute: rtc_dt.minute };
+        }
+        return rtc_dt;
+    }
+    let ms: Int = now_ms(time);
+    return clock_from_epoch(ms);
+}

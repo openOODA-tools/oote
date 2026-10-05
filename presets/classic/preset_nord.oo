@@ -1,0 +1,134 @@
+// # Nord Preset - Arctic Blue and Cool Grey
+//
+// Logline: Clean arctic aesthetic inspired by the North, featuring cool greys and frost accents.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Map UI chrome, canvas backgrounds, and borders for polar night and snow storm.
+//   2. Map status alerts and diff tokens with aurora green, frost blue, and red.
+//   3. Map syntax tokens, shell navigation, and logging levels.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn nord_ui_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "ui_bg" { return color_hex("#2E3440", 0); }
+        if tok == "ui_fg" { return color_hex("#ECEFF4", 37); }
+        if tok == "ui_surface" { return color_hex("#3B4252", 0); }
+        if tok == "ui_border" { return color_hex("#4C566A", 90); }
+        if tok == "ui_border_accent" { return color_hex("#88C0D0", 36); }
+        if tok == "ui_muted" { return color_hex("#D8DEE9", 37); }
+        if tok == "ui_dim" { return color_hex("#4C566A", 90); }
+        if tok == "ui_accent" { return color_hex("#88C0D0", 36); }
+    } else {
+        if tok == "ui_bg" { return color_hex("#ECEFF4", 0); }
+        if tok == "ui_fg" { return color_hex("#2E3440", 30); }
+        if tok == "ui_surface" { return color_hex("#E5E9F0", 0); }
+        if tok == "ui_border" { return color_hex("#D8DEE9", 90); }
+        if tok == "ui_border_accent" { return color_hex("#5E81AC", 34); }
+        if tok == "ui_muted" { return color_hex("#4C566A", 90); }
+        if tok == "ui_dim" { return color_hex("#9AA4B6", 90); }
+        if tok == "ui_accent" { return color_hex("#5E81AC", 34); }
+    }
+    return color_none();
+}
+
+fn nord_status_diff_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "status_success" { return color_hex("#A3BE8C", 32); }
+        if tok == "status_warning" { return color_hex("#EBCB8B", 33); }
+        if tok == "status_error" { return color_hex("#BF616A", 31); }
+        if tok == "status_info" { return color_hex("#81A1C1", 34); }
+        if tok == "diff_added" { return color_hex("#A3BE8C", 32); }
+        if tok == "diff_removed" { return color_hex("#BF616A", 31); }
+        if tok == "diff_context" { return color_hex("#D8DEE9", 37); }
+        if tok == "diff_header" { return color_hex("#88C0D0", 36); }
+    } else {
+        if tok == "status_success" { return color_hex("#4C7A34", 32); }
+        if tok == "status_warning" { return color_hex("#966E00", 33); }
+        if tok == "status_error" { return color_hex("#A52A2A", 31); }
+        if tok == "status_info" { return color_hex("#3B6A99", 34); }
+        if tok == "diff_added" { return color_hex("#4C7A34", 32); }
+        if tok == "diff_removed" { return color_hex("#A52A2A", 31); }
+        if tok == "diff_context" { return color_hex("#4C566A", 90); }
+        if tok == "diff_header" { return color_hex("#5E81AC", 34); }
+    }
+    return color_none();
+}
+
+fn nord_syntax_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "syntax_keyword" { return color_hex("#81A1C1", 34); }
+        if tok == "syntax_string" { return color_hex("#A3BE8C", 32); }
+        if tok == "syntax_number" { return color_hex("#B48EAD", 35); }
+        if tok == "syntax_type" { return color_hex("#8FBCBB", 36); }
+        if tok == "syntax_fn" { return color_hex("#88C0D0", 36); }
+        if tok == "syntax_var" { return color_hex("#D8DEE9", 37); }
+        if tok == "syntax_comment" { return color_hex("#4C566A", 90); }
+        if tok == "syntax_op" { return color_hex("#81A1C1", 34); }
+        if tok == "syntax_punct" { return color_hex("#ECEFF4", 37); }
+    } else {
+        if tok == "syntax_keyword" { return color_hex("#3B6A99", 34); }
+        if tok == "syntax_string" { return color_hex("#4C7A34", 32); }
+        if tok == "syntax_number" { return color_hex("#7B466D", 35); }
+        if tok == "syntax_type" { return color_hex("#2E7B7A", 36); }
+        if tok == "syntax_fn" { return color_hex("#5E81AC", 34); }
+        if tok == "syntax_var" { return color_hex("#2E3440", 30); }
+        if tok == "syntax_comment" { return color_hex("#4C566A", 90); }
+        if tok == "syntax_op" { return color_hex("#3B6A99", 34); }
+        if tok == "syntax_punct" { return color_hex("#2E3440", 30); }
+    }
+    return color_none();
+}
+
+fn nord_shell_log_token(tok: String, dark: Bool) -> Color {
+    if dark {
+        if tok == "match_hit" { return color_hex("#EBCB8B", 33); }
+        if tok == "match_path" { return color_hex("#88C0D0", 36); }
+        if tok == "match_line_num" { return color_hex("#A3BE8C", 32); }
+        if tok == "match_col_num" { return color_hex("#EBCB8B", 33); }
+        if tok == "shell_prompt" { return color_hex("#88C0D0", 36); }
+        if tok == "shell_builtin" { return color_hex("#81A1C1", 34); }
+        if tok == "shell_host_bin" { return color_hex("#8FBCBB", 36); }
+        if tok == "shell_nav" { return color_hex("#A3BE8C", 32); }
+        if tok == "shell_intent" { return color_hex("#B48EAD", 35); }
+        if tok == "log_trace" { return color_hex("#4C566A", 90); }
+        if tok == "log_debug" { return color_hex("#D8DEE9", 37); }
+        if tok == "log_info" { return color_hex("#88C0D0", 36); }
+        if tok == "log_warn" { return color_hex("#EBCB8B", 33); }
+        if tok == "log_error" { return color_hex("#BF616A", 31); }
+    } else {
+        if tok == "match_hit" { return color_hex("#966E00", 33); }
+        if tok == "match_path" { return color_hex("#5E81AC", 34); }
+        if tok == "match_line_num" { return color_hex("#4C7A34", 32); }
+        if tok == "match_col_num" { return color_hex("#966E00", 33); }
+        if tok == "shell_prompt" { return color_hex("#5E81AC", 34); }
+        if tok == "shell_builtin" { return color_hex("#3B6A99", 34); }
+        if tok == "shell_host_bin" { return color_hex("#2E7B7A", 36); }
+        if tok == "shell_nav" { return color_hex("#4C7A34", 32); }
+        if tok == "shell_intent" { return color_hex("#7B466D", 35); }
+        if tok == "log_trace" { return color_hex("#9AA4B6", 90); }
+        if tok == "log_debug" { return color_hex("#4C566A", 90); }
+        if tok == "log_info" { return color_hex("#5E81AC", 34); }
+        if tok == "log_warn" { return color_hex("#966E00", 33); }
+        if tok == "log_error" { return color_hex("#A52A2A", 31); }
+    }
+    return color_none();
+}
+
+pub fn theme_nord_color(tok: String, dark: Bool) -> Color {
+    let c1: Color = nord_ui_token(tok, dark);
+    if c1.is_set { return c1; }
+    let c2: Color = nord_status_diff_token(tok, dark);
+    if c2.is_set { return c2; }
+    let c3: Color = nord_syntax_token(tok, dark);
+    if c3.is_set { return c3; }
+    return nord_shell_log_token(tok, dark);
+}
+
+pub fn theme_nord_meta(dark: Bool) -> ThemeMeta {
+    return theme_meta_new("nord", "openOODA", dark, "Arctic ice and aurora boreal palette");
+}

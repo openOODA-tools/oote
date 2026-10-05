@@ -1,0 +1,16 @@
+// # Summer Presets Subsystem Anchor - Summer Catalog Re-Export
+//
+// Logline: Unified entry point aggregating summer monthly themes and holiday windows (solstice, mirage, amber, sol).
+//
+// Setup: Pure shim re-exporting summer preset modules.
+//
+// Beats:
+//   1. Re-export solstice preset (June).
+//   2. Re-export mirage preset (July).
+//   3. Re-export amber preset (August).
+//   4. Re-export sol holiday preset (Summer Solstice).
+
+import "solstice.oo";
+import "mirage.oo";
+import "amber.oo";
+import "sol.oo";
