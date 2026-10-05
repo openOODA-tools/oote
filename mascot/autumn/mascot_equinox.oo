@@ -1,0 +1,39 @@
+// # Equinox Mascot - Autumn Libra Heron
+//
+// Logline: Autumn heron ASCII mascot and prompt glyphs for the equinox theme.
+//
+// Setup: Pure string assembly. Relies on mascot_model.oo.
+//
+// Beats:
+//   1. Construct micro prompt glyphs per emotional state.
+//   2. Construct multi-line ASCII heron art per emotional state.
+//   3. Dispatch emotion state queries to structured Mascot record.
+
+import "mascot/mascot_model.oo";
+
+pub fn mascot_equinox_glyph(emotion: String) -> String {
+    let em: String = normalize_emotion(emotion);
+    if em == "happy" { return "^~*~^"; }
+    if em == "sad" { return "^~v~^"; }
+    if em == "alert" { return "^~!~^"; }
+    if em == "sleepy" { return "^~-~^z"; }
+    return "^~o~^";
+}
+
+pub fn mascot_equinox_data(emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    let g: String = mascot_equinox_glyph(em);
+    if em == "happy" {
+        return mascot_new("equinox", g, "   ___   ", "  (^_^)  ", "  / | \\* ", " (_/ \\_) ");
+    }
+    if em == "sad" {
+        return mascot_new("equinox", g, "   ___   ", "  (v_v)  ", "  / | \\; ", " (_/ \\_) ");
+    }
+    if em == "alert" {
+        return mascot_new("equinox", g, "   ___   ", "  (!_!)  ", "  / | \\! ", " (_/ \\_) ");
+    }
+    if em == "sleepy" {
+        return mascot_new("equinox", g, "   ___   ", "  (-_-)z ", "  / | \\~ ", " (_/ \\_) ");
+    }
+    return mascot_new("equinox", g, "   ___   ", "  (o_o)  ", "  / | \\  ", " (_/ \\_) ");
+}

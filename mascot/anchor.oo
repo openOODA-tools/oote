@@ -1,0 +1,18 @@
+// # Mascot Subsystem Anchor - Mascot Catalog Re-Export
+//
+// Logline: Unified entry point aggregating mascot model, registry, and seasonal mascot collections.
+//
+// Setup: Pure shim re-exporting mascot modules.
+//
+// Beats:
+//   1. Re-export mascot model and emotion structures.
+//   2. Re-export mascot registry and renderers.
+//   3. Re-export classic and seasonal mascot collections.
+
+import "mascot_model.oo";
+import "mascot_registry.oo";
+import "classic/anchor.oo";
+import "winter/anchor.oo";
+import "spring/anchor.oo";
+import "summer/anchor.oo";
+import "autumn/anchor.oo";

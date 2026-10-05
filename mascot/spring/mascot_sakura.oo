@@ -1,0 +1,39 @@
+// # Sakura Mascot - Cherry Blossom Kitsune
+//
+// Logline: Cherry blossom kitsune ASCII mascot and prompt glyphs for the sakura holiday theme.
+//
+// Setup: Pure string assembly. Relies on mascot_model.oo.
+//
+// Beats:
+//   1. Construct micro prompt glyphs per emotional state.
+//   2. Construct multi-line ASCII kitsune art per emotional state.
+//   3. Dispatch emotion state queries to structured Mascot record.
+
+import "mascot/mascot_model.oo";
+
+pub fn mascot_sakura_glyph(emotion: String) -> String {
+    let em: String = normalize_emotion(emotion);
+    if em == "happy" { return "^**^"; }
+    if em == "sad" { return "^vv^"; }
+    if em == "alert" { return "^!!^"; }
+    if em == "sleepy" { return "^--^z"; }
+    return "^..^";
+}
+
+pub fn mascot_sakura_data(emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    let g: String = mascot_sakura_glyph(em);
+    if em == "happy" {
+        return mascot_new("sakura", g, "  /\\_/\\  ", " ( '*' )*", "   \" \"   ", "  ~~~~~  ");
+    }
+    if em == "sad" {
+        return mascot_new("sakura", g, "  /\\_/\\  ", " ( ';' ) ", "   \" \"   ", "  ~~~~~  ");
+    }
+    if em == "alert" {
+        return mascot_new("sakura", g, "  /\\_/\\  ", " (!'o'!) ", "   \" \"   ", "  ~~~~~  ");
+    }
+    if em == "sleepy" {
+        return mascot_new("sakura", g, "  /\\_/\\  ", " ( '-' )z", "   \" \"   ", "  ~~~~~  ");
+    }
+    return mascot_new("sakura", g, "  /\\_/\\  ", " ( 'o' ) ", "   \" \"   ", "  ~~~~~  ");
+}

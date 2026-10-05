@@ -1,0 +1,18 @@
+// # Spring Mascots Subsystem Anchor - Spring Catalog Re-Export
+//
+// Logline: Unified entry point aggregating spring theme ASCII mascots and prompt glyphs.
+//
+// Setup: Pure shim re-exporting spring mascot definitions.
+//
+// Beats:
+//   1. Re-export thaw otter mascot.
+//   2. Re-export bloom butterfly mascot.
+//   3. Re-export meadow hare mascot.
+//   4. Re-export lantern dragon mascot.
+//   5. Re-export sakura kitsune mascot.
+
+import "mascot_thaw.oo";
+import "mascot_bloom.oo";
+import "mascot_meadow.oo";
+import "mascot_lantern.oo";
+import "mascot_sakura.oo";

@@ -1,0 +1,18 @@
+// # Autumn Mascots Subsystem Anchor - Autumn Catalog Re-Export
+//
+// Logline: Unified entry point aggregating autumn theme ASCII mascots and prompt glyphs.
+//
+// Setup: Pure shim re-exporting autumn mascot definitions.
+//
+// Beats:
+//   1. Re-export equinox heron mascot.
+//   2. Re-export ember drake mascot.
+//   3. Re-export hearth hedgehog mascot.
+//   4. Re-export spooky ghost mascot.
+//   5. Re-export harvest turkey mascot.
+
+import "mascot_equinox.oo";
+import "mascot_ember.oo";
+import "mascot_hearth.oo";
+import "mascot_spooky.oo";
+import "mascot_harvest.oo";

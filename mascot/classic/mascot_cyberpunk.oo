@@ -1,0 +1,39 @@
+// # Cyberpunk Mascot - High-Tech Surveillance Drone
+//
+// Logline: Cyber drone ASCII mascot and micro prompt glyphs for the cyberpunk theme.
+//
+// Setup: Pure string assembly. Relies on mascot_model.oo.
+//
+// Beats:
+//   1. Construct micro prompt glyphs per emotional state.
+//   2. Construct multi-line ASCII drone art per emotional state.
+//   3. Dispatch emotion state queries to structured Mascot record.
+
+import "mascot/mascot_model.oo";
+
+pub fn mascot_cyberpunk_glyph(emotion: String) -> String {
+    let em: String = normalize_emotion(emotion);
+    if em == "happy" { return "[#*#]"; }
+    if em == "sad" { return "[#v#]"; }
+    if em == "alert" { return "[#!#]"; }
+    if em == "sleepy" { return "[#-#]"; }
+    return "[#o#]";
+}
+
+pub fn mascot_cyberpunk_data(emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    let g: String = mascot_cyberpunk_glyph(em);
+    if em == "happy" {
+        return mascot_new("cyberpunk", g, "  <===>  ", " [ ^.* ] ", "  /===\\  ", "   * *   ");
+    }
+    if em == "sad" {
+        return mascot_new("cyberpunk", g, "  <===>  ", " [ ;.; ] ", "  /===\\  ", "   ! !   ");
+    }
+    if em == "alert" {
+        return mascot_new("cyberpunk", g, "  <===>  ", " [!@.@!] ", "  /===\\  ", "   ! !   ");
+    }
+    if em == "sleepy" {
+        return mascot_new("cyberpunk", g, "  <===>  ", " [ -.- ]z", "  /===\\  ", "   ~ ~   ");
+    }
+    return mascot_new("cyberpunk", g, "  <===>  ", " [ @.@ ] ", "  /===\\  ", "   * *   ");
+}

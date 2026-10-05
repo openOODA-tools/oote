@@ -1,0 +1,20 @@
+// # Classic Mascots Subsystem Anchor - Catalog Re-Export
+//
+// Logline: Unified entry point aggregating classic theme ASCII mascots and prompt glyphs.
+//
+// Setup: Pure shim re-exporting classic mascot definitions.
+//
+// Beats:
+//   1. Re-export minimax lynx mascot.
+//   2. Re-export 1982 robot mascot.
+//   3. Re-export nord seal mascot.
+//   4. Re-export dracula bat mascot.
+//   5. Re-export cyberpunk drone mascot.
+//   6. Re-export plain box mascot.
+
+import "mascot_minimax.oo";
+import "mascot_1982.oo";
+import "mascot_nord.oo";
+import "mascot_dracula.oo";
+import "mascot_cyberpunk.oo";
+import "mascot_plain.oo";

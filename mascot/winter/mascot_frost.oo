@@ -1,0 +1,39 @@
+// # Frost Mascot - Arctic Snow Owl
+//
+// Logline: Arctic snow owl ASCII mascot and prompt glyphs for the frost theme.
+//
+// Setup: Pure string assembly. Relies on mascot_model.oo.
+//
+// Beats:
+//   1. Construct micro prompt glyphs per emotional state.
+//   2. Construct multi-line ASCII snow owl art per emotional state.
+//   3. Dispatch emotion state queries to structured Mascot record.
+
+import "mascot/mascot_model.oo";
+
+pub fn mascot_frost_glyph(emotion: String) -> String {
+    let em: String = normalize_emotion(emotion);
+    if em == "happy" { return "(^,^)"; }
+    if em == "sad" { return "(v,v)"; }
+    if em == "alert" { return "(!,!)"; }
+    if em == "sleepy" { return "(-,-)z"; }
+    return "(o,o)";
+}
+
+pub fn mascot_frost_data(emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    let g: String = mascot_frost_glyph(em);
+    if em == "happy" {
+        return mascot_new("frost", g, "  {^,^}  ", "  /)  )  ", "   \"\"    ", "  ~~~~~  ");
+    }
+    if em == "sad" {
+        return mascot_new("frost", g, "  {v,v}  ", "  /)  )  ", "   \"\"    ", "  ~~~~~  ");
+    }
+    if em == "alert" {
+        return mascot_new("frost", g, "  {!,!}  ", "  /)  )  ", "   \"\"    ", "  ~~~~~  ");
+    }
+    if em == "sleepy" {
+        return mascot_new("frost", g, "  {-,-}z ", "  /)  )  ", "   \"\"    ", "  ~~~~~  ");
+    }
+    return mascot_new("frost", g, "  {o,o}  ", "  /)  )  ", "   \"\"    ", "  ~~~~~  ");
+}

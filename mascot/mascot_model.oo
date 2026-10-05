@@ -1,0 +1,43 @@
+// # Mascot Model - ASCII Art and Emotion Primitives
+//
+// Logline: Data structures and normalization helpers for theme mascots and emotion expressions.
+//
+// Setup: Pure value representation. Operates with zero ambient authority.
+//
+// Beats:
+//   1. Define Mascot record holding name, micro glyph, and multi-line ASCII art.
+//   2. Validate supported emotion labels (idle, happy, sad, alert, sleepy).
+//   3. Normalize user-provided emotion strings with sensible fallbacks.
+
+pub type Mascot = struct {
+    name: String,
+    glyph: String,
+    line1: String,
+    line2: String,
+    line3: String,
+    line4: String
+};
+
+pub fn mascot_new(name: String, glyph: String, l1: String, l2: String, l3: String, l4: String) -> Mascot {
+    return Mascot {
+        name: name,
+        glyph: glyph,
+        line1: l1,
+        line2: l2,
+        line3: l3,
+        line4: l4
+    };
+}
+
+pub fn is_valid_emotion(em: String) -> Bool {
+    return em == "idle" || em == "happy" || em == "sad" || em == "alert" || em == "sleepy";
+}
+
+pub fn normalize_emotion(em: String) -> String {
+    let t: String = str_trim(em);
+    if t == "happy" || t == "success" || t == "0" { return "happy"; }
+    if t == "sad" || t == "error" || t == "fail" || t == "failure" || t == "1" { return "sad"; }
+    if t == "alert" || t == "warn" || t == "warning" || t == "dirty" { return "alert"; }
+    if t == "sleepy" || t == "sleep" || t == "night" { return "sleepy"; }
+    return "idle";
+}

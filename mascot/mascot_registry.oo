@@ -1,0 +1,94 @@
+// # Mascot Registry - Theme Dispatcher and Formatter
+//
+// Logline: Unified mascot catalog dispatching emotional ASCII art and micro glyphs across all themes.
+//
+// Setup: Pure routing. Imports mascot model and all seasonal mascot definitions.
+//
+// Beats:
+//   1. Route theme and emotion queries to classic mascot definitions.
+//   2. Route theme and emotion queries to seasonal mascot definitions.
+//   3. Render painted multi-line mascot ASCII blocks.
+
+import "spec/color_model.oo";
+import "render/painter.oo";
+import "mascot_model.oo";
+import "classic/mascot_minimax.oo";
+import "classic/mascot_1982.oo";
+import "classic/mascot_nord.oo";
+import "classic/mascot_dracula.oo";
+import "classic/mascot_cyberpunk.oo";
+import "classic/mascot_plain.oo";
+import "winter/mascot_frost.oo";
+import "winter/mascot_amethyst.oo";
+import "winter/mascot_solitude.oo";
+import "winter/mascot_yule.oo";
+import "winter/mascot_nova.oo";
+import "spring/mascot_thaw.oo";
+import "spring/mascot_bloom.oo";
+import "spring/mascot_meadow.oo";
+import "spring/mascot_lantern.oo";
+import "spring/mascot_sakura.oo";
+import "summer/mascot_solstice.oo";
+import "summer/mascot_mirage.oo";
+import "summer/mascot_amber.oo";
+import "summer/mascot_sol.oo";
+import "autumn/mascot_equinox.oo";
+import "autumn/mascot_ember.oo";
+import "autumn/mascot_hearth.oo";
+import "autumn/mascot_spooky.oo";
+import "autumn/mascot_harvest.oo";
+
+fn mascot_get_classic(name: String, em: String) -> Mascot {
+    if name == "minimax" { return mascot_minimax_data(em); }
+    if name == "1982" { return mascot_1982_data(em); }
+    if name == "nord" { return mascot_nord_data(em); }
+    if name == "dracula" { return mascot_dracula_data(em); }
+    if name == "cyberpunk" { return mascot_cyberpunk_data(em); }
+    if name == "plain" { return mascot_plain_data(em); }
+    return mascot_minimax_data(em);
+}
+
+fn mascot_get_seasonal(name: String, em: String) -> Mascot {
+    if name == "frost" { return mascot_frost_data(em); }
+    if name == "amethyst" { return mascot_amethyst_data(em); }
+    if name == "solitude" { return mascot_solitude_data(em); }
+    if name == "yule" { return mascot_yule_data(em); }
+    if name == "nova" { return mascot_nova_data(em); }
+    if name == "thaw" { return mascot_thaw_data(em); }
+    if name == "bloom" { return mascot_bloom_data(em); }
+    if name == "meadow" { return mascot_meadow_data(em); }
+    if name == "lantern" { return mascot_lantern_data(em); }
+    if name == "sakura" { return mascot_sakura_data(em); }
+    if name == "solstice" { return mascot_solstice_data(em); }
+    if name == "mirage" { return mascot_mirage_data(em); }
+    if name == "amber" { return mascot_amber_data(em); }
+    if name == "sol" { return mascot_sol_data(em); }
+    if name == "equinox" { return mascot_equinox_data(em); }
+    if name == "ember" { return mascot_ember_data(em); }
+    if name == "hearth" { return mascot_hearth_data(em); }
+    if name == "spooky" { return mascot_spooky_data(em); }
+    if name == "harvest" { return mascot_harvest_data(em); }
+    return mascot_minimax_data(em);
+}
+
+pub fn mascot_get(theme_name: String, emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    if theme_name == "minimax" || theme_name == "1982" || theme_name == "nord" ||
+       theme_name == "dracula" || theme_name == "cyberpunk" || theme_name == "plain" {
+        return mascot_get_classic(theme_name, em);
+    }
+    return mascot_get_seasonal(theme_name, em);
+}
+
+pub fn mascot_glyph(theme_name: String, emotion: String) -> String {
+    let m: Mascot = mascot_get(theme_name, emotion);
+    return m.glyph;
+}
+
+pub fn mascot_render(m: Mascot, color_on: Bool, tc_on: Bool, c: Color) -> String {
+    let l1: String = paint_bold(m.line1, c, color_on, tc_on);
+    let l2: String = paint_bold(m.line2, c, color_on, tc_on);
+    let l3: String = paint_bold(m.line3, c, color_on, tc_on);
+    let l4: String = paint_bold(m.line4, c, color_on, tc_on);
+    return l1 + "\n" + l2 + "\n" + l3 + "\n" + l4;
+}

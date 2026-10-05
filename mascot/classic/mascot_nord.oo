@@ -1,0 +1,39 @@
+// # Nord Mascot - Arctic Harp Seal
+//
+// Logline: Arctic harp seal ASCII mascot and prompt glyphs for the nord theme.
+//
+// Setup: Pure string assembly. Relies on mascot_model.oo.
+//
+// Beats:
+//   1. Construct micro prompt glyphs per emotional state.
+//   2. Construct multi-line ASCII seal art per emotional state.
+//   3. Dispatch emotion state queries to structured Mascot record.
+
+import "mascot/mascot_model.oo";
+
+pub fn mascot_nord_glyph(emotion: String) -> String {
+    let em: String = normalize_emotion(emotion);
+    if em == "happy" { return "(:3)"; }
+    if em == "sad" { return "(:c)"; }
+    if em == "alert" { return "(:!)"; }
+    if em == "sleepy" { return "(-3-)"; }
+    return "(:3)";
+}
+
+pub fn mascot_nord_data(emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    let g: String = mascot_nord_glyph(em);
+    if em == "happy" {
+        return mascot_new("nord", g, "  ( 'w') ", " (  *  ) ", "  '---'  ", "   ~ ~   ");
+    }
+    if em == "sad" {
+        return mascot_new("nord", g, "  ( ;c;) ", " (  v  ) ", "  '---'  ", "   ~ ~   ");
+    }
+    if em == "alert" {
+        return mascot_new("nord", g, "  ( !o!) ", " (  !  ) ", "  '---'  ", "   ~ ~   ");
+    }
+    if em == "sleepy" {
+        return mascot_new("nord", g, "  ( -.-)z", " (  ~  ) ", "  '---'  ", "   ~ ~   ");
+    }
+    return mascot_new("nord", g, "  ( 'o') ", " (  \"  ) ", "  '---'  ", "   ~ ~   ");
+}

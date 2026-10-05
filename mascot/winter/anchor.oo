@@ -1,0 +1,18 @@
+// # Winter Mascots Subsystem Anchor - Winter Catalog Re-Export
+//
+// Logline: Unified entry point aggregating winter theme ASCII mascots and prompt glyphs.
+//
+// Setup: Pure shim re-exporting winter mascot definitions.
+//
+// Beats:
+//   1. Re-export frost owl mascot.
+//   2. Re-export amethyst golem mascot.
+//   3. Re-export solitude wolf mascot.
+//   4. Re-export yule reindeer mascot.
+//   5. Re-export nova stargazer mascot.
+
+import "mascot_frost.oo";
+import "mascot_amethyst.oo";
+import "mascot_solitude.oo";
+import "mascot_yule.oo";
+import "mascot_nova.oo";

@@ -1,0 +1,39 @@
+// # Meadow Mascot - Emerald Meadow Hare
+//
+// Logline: Meadow hare ASCII mascot and prompt glyphs for the meadow theme.
+//
+// Setup: Pure string assembly. Relies on mascot_model.oo.
+//
+// Beats:
+//   1. Construct micro prompt glyphs per emotional state.
+//   2. Construct multi-line ASCII hare art per emotional state.
+//   3. Dispatch emotion state queries to structured Mascot record.
+
+import "mascot/mascot_model.oo";
+
+pub fn mascot_meadow_glyph(emotion: String) -> String {
+    let em: String = normalize_emotion(emotion);
+    if em == "happy" { return "(\\^/)"; }
+    if em == "sad" { return "(\\v/)"; }
+    if em == "alert" { return "(\\!)"; }
+    if em == "sleepy" { return "(\\~/z)"; }
+    return "(\\_/)";
+}
+
+pub fn mascot_meadow_data(emotion: String) -> Mascot {
+    let em: String = normalize_emotion(emotion);
+    let g: String = mascot_meadow_glyph(em);
+    if em == "happy" {
+        return mascot_new("meadow", g, "  (\\_/)  ", "  ( ^.^ )", "  (\")_(\")", "   * *   ");
+    }
+    if em == "sad" {
+        return mascot_new("meadow", g, "  (\\_/)  ", "  ( v.v )", "  (\")_(\")", "   * *   ");
+    }
+    if em == "alert" {
+        return mascot_new("meadow", g, "  (\\ !/) ", "  (!o.o!)", "  (\")_(\")", "   ! !   ");
+    }
+    if em == "sleepy" {
+        return mascot_new("meadow", g, "  (\\_/)  ", "  ( -.-)z", "  (\")_(\")", "   ~ ~   ");
+    }
+    return mascot_new("meadow", g, "  (\\_/)  ", "  ( o.o )", "  (\")_(\")", "   * *   ");
+}

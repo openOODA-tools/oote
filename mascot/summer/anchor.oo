@@ -1,0 +1,16 @@
+// # Summer Mascots Subsystem Anchor - Summer Catalog Re-Export
+//
+// Logline: Unified entry point aggregating summer theme ASCII mascots and prompt glyphs.
+//
+// Setup: Pure shim re-exporting summer mascot definitions.
+//
+// Beats:
+//   1. Re-export solstice phoenix mascot.
+//   2. Re-export mirage fennec mascot.
+//   3. Re-export amber bee mascot.
+//   4. Re-export sol lion mascot.
+
+import "mascot_solstice.oo";
+import "mascot_mirage.oo";
+import "mascot_amber.oo";
+import "mascot_sol.oo";
