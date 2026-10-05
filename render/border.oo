@@ -9,6 +9,8 @@
 //   2. Support round, sharp, double, and ascii border shape variants.
 //   3. Render top, bottom, divider, and wrapped row frame components.
 
+import "escape_seq.oo";
+
 pub type BorderChars = struct {
     tl: String,
     tr: String,
@@ -45,12 +47,34 @@ pub fn border_repeat(ch: String, count: Int) -> String {
     return out;
 }
 
+pub fn border_visible_len(s: String) -> Int {
+    let n: Int = chars_len(s);
+    let mut count: Int = 0;
+    let mut in_esc: Bool = false;
+    let mut i: Int = 0;
+    let esc: String = ansi_esc();
+    while i < n {
+        let ch: String = char_at(s, i);
+        if ch == esc {
+            in_esc = true;
+        } else if in_esc {
+            if ch == "m" {
+                in_esc = false;
+            }
+        } else {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+    return count;
+}
+
 pub fn border_top_bar(width: Int, title: String, shape: String) -> String {
     let bc: BorderChars = border_get_chars(shape);
     if title == "" {
         return bc.tl + border_repeat(bc.horiz, width) + bc.tr;
     }
-    let t_len: Int = chars_len(title);
+    let t_len: Int = border_visible_len(title);
     let rem: Int = width - t_len - 2;
     let right_pad: Int = if rem > 0 { rem } else { 0 };
     return bc.tl + bc.horiz + " " + title + " " + border_repeat(bc.horiz, right_pad) + bc.tr;
@@ -68,7 +92,7 @@ pub fn border_divider(width: Int, shape: String) -> String {
 
 pub fn border_wrap_line(content: String, width: Int, shape: String) -> String {
     let bc: BorderChars = border_get_chars(shape);
-    let c_len: Int = chars_len(content);
+    let c_len: Int = border_visible_len(content);
     let pad: Int = if width > c_len { width - c_len } else { 0 };
     return bc.vert + " " + content + border_repeat(" ", pad) + " " + bc.vert;
 }

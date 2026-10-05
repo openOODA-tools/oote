@@ -73,10 +73,14 @@ fn cmd_list(fs_r: &FsReadCap, env: &EnvCap, color_on: Bool, tc_on: Bool) -> Int 
 
 fn cmd_query(fs_r: &FsReadCap, env: &EnvCap, is_get: Bool, arg: String, color_on: Bool, tc_on: Bool) -> Int {
     if !is_get {
-        if arg == "--mode" {
+        if arg == "--mode" || arg == "-m" {
             let dark: Bool = resolve_active_mode(fs_r, env);
             print(if dark { "dark\n" } else { "light\n" });
             return 0;
+        }
+        if arg != "" {
+            print("oote: unknown option '" + arg + "'\nUsage: oote current [--mode]\n");
+            return 1;
         }
         print(resolve_active_theme(fs_r, env) + "\n");
         return 0;
@@ -131,11 +135,10 @@ fn cmd_set(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, args: List[String]
         print("oote: unknown theme '" + target + "'\nRun 'oote list' to see available themes.\n");
         return 1;
     }
-    let c1: String = read_config_content(fs_r, env);
-    let mut mode: String = parse_mode_from_oot(c1);
+    let c: String = read_config_content(fs_r, env);
+    let mut mode: String = parse_mode_from_oot(c);
     if mode == "" { mode = "auto"; }
-    let c2: String = read_config_content(fs_r, env);
-    let mut border: String = parse_border_from_oot(c2);
+    let mut border: String = parse_border_from_oot(c);
     if border == "" { border = "round"; }
     let mut i: Int = 2;
     while i < argc {
@@ -154,14 +157,12 @@ fn cmd_set(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, args: List[String]
 
 fn cmd_mode_border(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, verb: String, args: List[String]) -> Int {
     let argc: Int = list_len(args);
-    let c1: String = read_config_content(fs_r, env);
-    let mut t: String = parse_theme_from_oot(c1);
+    let c: String = read_config_content(fs_r, env);
+    let mut t: String = parse_theme_from_oot(c);
     if t == "" { t = "auto"; }
-    let c2: String = read_config_content(fs_r, env);
-    let mut m: String = parse_mode_from_oot(c2);
+    let mut m: String = parse_mode_from_oot(c);
     if m == "" { m = "auto"; }
-    let c3: String = read_config_content(fs_r, env);
-    let mut b: String = parse_border_from_oot(c3);
+    let mut b: String = parse_border_from_oot(c);
     if b == "" { b = "round"; }
     if verb == "border" {
         if argc <= 1 { print(resolve_active_border(fs_r, env) + "\n"); return 0; }

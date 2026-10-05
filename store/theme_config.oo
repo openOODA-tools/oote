@@ -51,25 +51,41 @@ pub fn resolve_active_theme(fs_r: &FsReadCap, env: &EnvCap) -> String {
     if target != "auto" { return target; }
 
     let dt: CalendarDate = clock_from_rtc(fs_r);
+    let mut m: Int = if dt.month > 0 { dt.month } else { 10 };
+    let mut d: Int = if dt.day > 0 { dt.day } else { 5 };
+    let env_date: String = env_lookup(env, "OODA_DATE");
+    if chars_len(env_date) >= 10 {
+        m = parse_two_digits(env_date, 5);
+        d = parse_two_digits(env_date, 8);
+    }
     let env_m: String = env_lookup(env, "OODA_MONTH");
-    let env_d: String = env_lookup(env, "OODA_DATE");
-    let m: Int = if env_m != "" { if env_m == "1" { 1 } else if env_m == "2" { 2 } else if env_m == "10" { 10 } else { dt.month } } else { dt.month };
-    let d: Int = if env_d != "" { if chars_len(env_d) >= 10 { if char_at(env_d, 8) == "3" { 31 } else { dt.day } } else { dt.day } } else { dt.day };
+    if env_m != "" { m = parse_int(env_m); }
+    let env_d: String = env_lookup(env, "OODA_DAY");
+    if env_d != "" { d = parse_int(env_d); }
     return calendar_auto_theme(m, d);
 }
 
 pub fn resolve_active_mode(fs_r: &FsReadCap, env: &EnvCap) -> Bool {
     let env_mode: String = env_lookup(env, "OODA_MODE");
-    if env_mode == "dark" { return true; }
-    if env_mode == "light" { return false; }
     let content: String = read_config_content(fs_r, env);
     let cfg_mode: String = parse_mode_from_oot(content);
-    if cfg_mode == "dark" { return true; }
-    if cfg_mode == "light" { return false; }
+    let target: String = if env_mode != "" { env_mode } else if cfg_mode != "" { cfg_mode } else { "auto" };
+    if target == "dark" { return true; }
+    if target == "light" { return false; }
 
-    let dt: CalendarDate = clock_from_rtc(fs_r);
     let env_h: String = env_lookup(env, "OODA_HOUR");
-    let h: Int = if env_h != "" { if env_h == "22" || env_h == "23" || env_h == "0" { 22 } else { 12 } } else { dt.hour };
+    if env_h != "" {
+        let h: Int = parse_int(env_h);
+        return clock_is_dark(h);
+    }
+    let dt: CalendarDate = clock_from_rtc(fs_r);
+    let tz_s: String = env_lookup(env, "OODA_TZ_OFFSET");
+    let mut h: Int = if dt.year > 0 { dt.hour } else { 12 };
+    if tz_s != "" {
+        let offset: Int = parse_int(tz_s);
+        h = (h + offset) % 24;
+        if h < 0 { h = h + 24; }
+    }
     return clock_is_dark(h);
 }
 
@@ -86,6 +102,8 @@ pub fn is_color_enabled(env: &EnvCap, cli_no_color: Bool) -> Bool {
     if cli_no_color { return false; }
     let no_col: String = env_lookup(env, "OODA_NO_COLOR");
     if no_col != "" { return false; }
+    let oo_no_col: String = env_lookup(env, "OO_NO_COLOR");
+    if oo_no_col != "" { return false; }
     let std_no_col: String = env_lookup(env, "NO_COLOR");
     if std_no_col != "" { return false; }
     let term: String = env_lookup(env, "TERM");

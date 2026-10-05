@@ -38,18 +38,23 @@ fn digit_val(c: String) -> Int {
     return 0;
 }
 
-fn parse_int(s: String) -> Int {
+pub fn parse_int(s: String) -> Int {
+    let trimmed: String = str_trim(s);
+    let n: Int = chars_len(trimmed);
+    if n == 0 { return 0; }
+    let is_neg: Bool = char_at(trimmed, 0) == "-";
+    let is_pos: Bool = char_at(trimmed, 0) == "+";
+    let mut i: Int = if is_neg || is_pos { 1 } else { 0 };
     let mut v: Int = 0;
-    let n: Int = chars_len(s);
-    let mut i: Int = 0;
     while i < n {
-        v = v * 10 + digit_val(char_at(s, i));
+        v = v * 10 + digit_val(char_at(trimmed, i));
         i = i + 1;
     }
+    if is_neg { return 0 - v; }
     return v;
 }
 
-fn parse_two_digits(s: String, start: Int) -> Int {
+pub fn parse_two_digits(s: String, start: Int) -> Int {
     if chars_len(s) < start + 2 { return 0; }
     let c0: Int = digit_val(char_at(s, start));
     let c1: Int = digit_val(char_at(s, start + 1));
@@ -95,16 +100,16 @@ pub fn clock_from_epoch(ms: Int) -> CalendarDate {
 
 pub fn clock_from_rtc(fs_r: &FsReadCap) -> CalendarDate {
     if !path_exists(fs_r, "/proc/driver/rtc") {
-        return CalendarDate { year: 2026, month: 10, day: 5, hour: 12, minute: 0 };
+        return CalendarDate { year: 0, month: 0, day: 0, hour: 0, minute: 0 };
     }
     let r_open: Result[FileReader, String] = file_reader_open(fs_r, "/proc/driver/rtc");
-    let reader: FileReader = match r_open { Ok(r) => r, Err(_) => return CalendarDate { year: 2026, month: 10, day: 5, hour: 12, minute: 0 } };
+    let reader: FileReader = match r_open { Ok(r) => r, Err(_) => return CalendarDate { year: 0, month: 0, day: 0, hour: 0, minute: 0 } };
     let r_read: Result[String, String] = file_reader_read_all(fs_r, reader);
     let body: String = match r_read { Ok(s) => s, Err(_) => "" };
-    let mut y: Int = 2026;
-    let mut m: Int = 10;
-    let mut d: Int = 5;
-    let mut h: Int = 12;
+    let mut y: Int = 0;
+    let mut m: Int = 0;
+    let mut d: Int = 0;
+    let mut h: Int = 0;
     let mut min: Int = 0;
     let d_idx: Int = str_index_of(body, "rtc_date\t: ");
     if d_idx >= 0 {
@@ -140,7 +145,7 @@ pub fn clock_probe(fs_r: &FsReadCap, env: &EnvCap, time: &TimeCap) -> CalendarDa
     }
     let rtc_dt: CalendarDate = clock_from_rtc(fs_r);
     if rtc_dt.year > 1970 {
-        let tz_res: Result[String, String] = env_get(env, "TZ_OFFSET");
+        let tz_res: Result[String, String] = env_get(env, "OODA_TZ_OFFSET");
         let tz_s: String = match tz_res { Ok(s) => s, Err(_) => "" };
         if tz_s != "" {
             let offset: Int = parse_int(tz_s);

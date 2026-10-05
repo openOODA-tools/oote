@@ -23,8 +23,8 @@ fn preview_header(theme_name: String, meta: ThemeMeta, border_shape: String, col
     let title: String = paint_bold("══ " + meta.name + " ══", accent, color_on, tc_on);
     let mode_tag: String = if meta.dark { "[DARK]" } else { "[LIGHT]" };
     let desc: String = " (" + meta.description + ") " + mode_tag;
-    let top: String = border_top_bar(64, title, border_shape) + "\n";
-    let sub: String = border_wrap_line(desc, 62, border_shape) + "\n";
+    let top: String = border_top_bar(74, title, border_shape) + "\n";
+    let sub: String = border_wrap_line(desc, 72, border_shape) + "\n";
     return top + sub;
 }
 
@@ -33,11 +33,12 @@ fn preview_mascot(theme_name: String, border_shape: String, color_on: Bool, tc_o
     let m: Mascot = mascot_get(theme_name, "happy");
     let g: String = mascot_glyph(theme_name, "idle");
     let label: String = "Mascot: " + m.name + " " + g;
-    let l1: String = border_wrap_line(paint_bold(m.line1, accent, color_on, tc_on), 62, border_shape);
-    let l2: String = border_wrap_line(paint_bold(m.line2, accent, color_on, tc_on), 62, border_shape);
-    let l3: String = border_wrap_line(paint_bold(m.line3, accent, color_on, tc_on), 62, border_shape);
-    let head: String = border_wrap_line(label, 62, border_shape);
-    return head + "\n" + l1 + "\n" + l2 + "\n" + l3 + "\n";
+    let l1: String = border_wrap_line(paint_bold(m.line1, accent, color_on, tc_on), 72, border_shape);
+    let l2: String = border_wrap_line(paint_bold(m.line2, accent, color_on, tc_on), 72, border_shape);
+    let l3: String = border_wrap_line(paint_bold(m.line3, accent, color_on, tc_on), 72, border_shape);
+    let l4: String = border_wrap_line(paint_bold(m.line4, accent, color_on, tc_on), 72, border_shape);
+    let head: String = border_wrap_line(label, 72, border_shape);
+    return head + "\n" + l1 + "\n" + l2 + "\n" + l3 + "\n" + l4 + "\n";
 }
 
 fn preview_swatches(theme_name: String, border_shape: String, color_on: Bool, tc_on: Bool, dark: Bool) -> String {
@@ -53,7 +54,7 @@ fn preview_swatches(theme_name: String, border_shape: String, color_on: Bool, tc
     let b_err: String = paint_bold("[ERR]", c_err, color_on, tc_on);
     let b_inf: String = paint_bold("[INFO]", c_inf, color_on, tc_on);
     let row: String = "Swatches: " + b_acc + " " + b_suc + " " + b_wrn + " " + b_err + " " + b_inf;
-    return border_wrap_line(row, 62, border_shape) + "\n";
+    return border_wrap_line(row, 72, border_shape) + "\n";
 }
 
 fn preview_diff(theme_name: String, border_shape: String, color_on: Bool, tc_on: Bool, dark: Bool) -> String {
@@ -61,9 +62,9 @@ fn preview_diff(theme_name: String, border_shape: String, color_on: Bool, tc_on:
     let c_add: Color = theme_get_color_mode(theme_name, "diff_added", dark);
     let c_rem: Color = theme_get_color_mode(theme_name, "diff_removed", dark);
 
-    let l_hdr: String = border_wrap_line(paint_fg("@@ -1,4 +1,4 @@", c_hdr, color_on, tc_on), 62, border_shape);
-    let l_rem: String = border_wrap_line(paint_fg("- legacy_hardcoded_styling()", c_rem, color_on, tc_on), 62, border_shape);
-    let l_add: String = border_wrap_line(paint_fg("+ oote_theme_engine_dispatch()", c_add, color_on, tc_on), 62, border_shape);
+    let l_hdr: String = border_wrap_line(paint_fg("@@ -1,4 +1,4 @@", c_hdr, color_on, tc_on), 72, border_shape);
+    let l_rem: String = border_wrap_line(paint_fg("- legacy_hardcoded_styling()", c_rem, color_on, tc_on), 72, border_shape);
+    let l_add: String = border_wrap_line(paint_fg("+ oote_theme_engine_dispatch()", c_add, color_on, tc_on), 72, border_shape);
     return l_hdr + "\n" + l_rem + "\n" + l_add + "\n";
 }
 
@@ -81,7 +82,7 @@ fn preview_syntax(theme_name: String, border_shape: String, color_on: Bool, tc_o
     let w_str: String = paint_fg("\"sovereign\"", c_st, color_on, tc_on);
     let w_cmt: String = paint_fg(" // oote theme", c_cm, color_on, tc_on);
     let line: String = w_pub + w_fn + w_arg + w_ret + " { return " + w_str + "; }" + w_cmt;
-    return border_wrap_line(line, 62, border_shape) + "\n";
+    return border_wrap_line(line, 72, border_shape) + "\n";
 }
 
 fn preview_shell(theme_name: String, border_shape: String, color_on: Bool, tc_on: Bool, dark: Bool) -> String {
@@ -95,8 +96,8 @@ fn preview_shell(theme_name: String, border_shape: String, color_on: Bool, tc_on
     let p_sym: String = paint_fg(" > ", c_sh, color_on, tc_on);
     let p_cmd: String = paint_fg("oote set " + theme_name, c_bu, color_on, tc_on);
     let line: String = p_ctx + p_dir + p_sym + p_cmd;
-    let b_row: String = border_wrap_line(line, 62, border_shape) + "\n";
-    let bottom: String = border_bottom_bar(64, border_shape) + "\n";
+    let b_row: String = border_wrap_line(line, 72, border_shape) + "\n";
+    let bottom: String = border_bottom_bar(74, border_shape) + "\n";
     return b_row + bottom;
 }
 
