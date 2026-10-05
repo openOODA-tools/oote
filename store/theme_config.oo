@@ -1,19 +1,21 @@
 // # Theme Config Resolver - Environment and File Hydration
 //
-// Logline: Resolves active theme name and color fidelity flags from disk and environment capabilities.
+// Logline: Resolves active theme, lighting mode, and border geometry with automated calendar and circadian detection.
 //
 // Setup: Requires FsReadCap and EnvCap. Degrades gracefully to defaults if paths are unreadable.
 //
 // Beats:
 //   1. Resolve primary config file path (~/.openooda/theme.oot).
-//   2. Probe environment variables for explicit theme overrides.
-//   3. Read and parse configuration file from disk.
+//   2. Probe environment variables for explicit theme and mode overrides.
+//   3. Read configuration file and evaluate dynamic calendar and circadian auto modes.
 //   4. Evaluate NO_COLOR and terminal capabilities for output degradation.
 
 import "std/fs/file/path.oo";
 import "std/fs/file/file_reader.oo";
 import "std/fs/process/env.oo";
+import "presets/calendar.oo";
 import "config_reader.oo";
+import "clock.oo";
 
 pub fn env_lookup(env: &EnvCap, name: String) -> String {
     let r: Result[String, String] = env_get(env, name);
@@ -32,20 +34,52 @@ pub fn get_theme_config_path(env: &EnvCap) -> String {
     return "theme.oot";
 }
 
+pub fn read_config_content(fs_r: &FsReadCap, env: &EnvCap) -> String {
+    let path: String = get_theme_config_path(env);
+    if !path_exists(fs_r, path) { return ""; }
+    let open_res: Result[FileReader, String] = file_reader_open(fs_r, path);
+    let reader: FileReader = match open_res { Ok(r) => r, Err(_) => return "" };
+    let read_res: Result[String, String] = file_reader_read_all(fs_r, reader);
+    return match read_res { Ok(s) => s, Err(_) => "" };
+}
+
 pub fn resolve_active_theme(fs_r: &FsReadCap, env: &EnvCap) -> String {
     let env_theme: String = env_lookup(env, "OODA_THEME");
-    if env_theme != "" { return env_theme; }
+    let content: String = read_config_content(fs_r, env);
+    let cfg_theme: String = parse_theme_from_oot(content);
+    let target: String = if env_theme != "" { env_theme } else if cfg_theme != "" { cfg_theme } else { "auto" };
+    if target != "auto" { return target; }
 
-    let path: String = get_theme_config_path(env);
-    if path_exists(fs_r, path) {
-        let open_res: Result[FileReader, String] = file_reader_open(fs_r, path);
-        let reader: FileReader = match open_res { Ok(r) => r, Err(_) => return "minimax" };
-        let read_res: Result[String, String] = file_reader_read_all(fs_r, reader);
-        let content: String = match read_res { Ok(s) => s, Err(_) => "" };
-        let parsed: String = parse_theme_from_oot(content);
-        if parsed != "" { return parsed; }
-    }
-    return "minimax";
+    let dt: CalendarDate = clock_from_rtc(fs_r);
+    let env_m: String = env_lookup(env, "OODA_MONTH");
+    let env_d: String = env_lookup(env, "OODA_DATE");
+    let m: Int = if env_m != "" { if env_m == "1" { 1 } else if env_m == "2" { 2 } else if env_m == "10" { 10 } else { dt.month } } else { dt.month };
+    let d: Int = if env_d != "" { if chars_len(env_d) >= 10 { if char_at(env_d, 8) == "3" { 31 } else { dt.day } } else { dt.day } } else { dt.day };
+    return calendar_auto_theme(m, d);
+}
+
+pub fn resolve_active_mode(fs_r: &FsReadCap, env: &EnvCap) -> Bool {
+    let env_mode: String = env_lookup(env, "OODA_MODE");
+    if env_mode == "dark" { return true; }
+    if env_mode == "light" { return false; }
+    let content: String = read_config_content(fs_r, env);
+    let cfg_mode: String = parse_mode_from_oot(content);
+    if cfg_mode == "dark" { return true; }
+    if cfg_mode == "light" { return false; }
+
+    let dt: CalendarDate = clock_from_rtc(fs_r);
+    let env_h: String = env_lookup(env, "OODA_HOUR");
+    let h: Int = if env_h != "" { if env_h == "22" || env_h == "23" || env_h == "0" { 22 } else { 12 } } else { dt.hour };
+    return clock_is_dark(h);
+}
+
+pub fn resolve_active_border(fs_r: &FsReadCap, env: &EnvCap) -> String {
+    let env_b: String = env_lookup(env, "OODA_BORDER");
+    if env_b != "" { return env_b; }
+    let content: String = read_config_content(fs_r, env);
+    let cfg_b: String = parse_border_from_oot(content);
+    if cfg_b != "" { return cfg_b; }
+    return "round";
 }
 
 pub fn is_color_enabled(env: &EnvCap, cli_no_color: Bool) -> Bool {

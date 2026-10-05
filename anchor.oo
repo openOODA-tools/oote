@@ -1,16 +1,18 @@
 // # oote Root Anchor - Ecosystem Re-Export
 //
-// Logline: Top-level subsystem map uniting spec, render, presets, and store domains.
+// Logline: Top-level subsystem map uniting spec, render, presets, mascot, and store domains.
 //
 // Setup: Pure shim. Re-exports all subsystem anchors for the oote theming engine.
 //
 // Beats:
 //   1. Re-export spec domain (color models, styles, token taxonomy).
-//   2. Re-export render domain (ANSI escapes, degradation, painter).
-//   3. Re-export presets domain (curated built-in themes).
-//   4. Re-export store domain (configuration hydration and persistence).
+//   2. Re-export render domain (ANSI escapes, degradation, painter, border).
+//   3. Re-export presets domain (curated built-in themes and calendar auto-detection).
+//   4. Re-export mascot domain (ASCII art mascots and prompt glyphs).
+//   5. Re-export store domain (configuration hydration and persistence).
 
 import "spec/anchor.oo";
 import "render/anchor.oo";
 import "presets/anchor.oo";
+import "mascot/anchor.oo";
 import "store/anchor.oo";

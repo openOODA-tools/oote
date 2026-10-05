@@ -7,7 +7,7 @@
 // Beats:
 //   1. Scan lines for key-value pair assignments.
 //   2. Strip optional quotation marks and trailing whitespace.
-//   3. Extract theme name and rendering mode from config text.
+//   3. Extract theme name, rendering mode, and border shape from config text.
 
 pub fn parse_oot_val(line: String, key: String) -> String {
     let trimmed: String = str_trim(line);
@@ -24,14 +24,14 @@ pub fn parse_oot_val(line: String, key: String) -> String {
     return val;
 }
 
-pub fn parse_theme_from_oot(content: String) -> String {
+pub fn parse_key_from_oot(content: String, key: String) -> String {
     let n: Int = chars_len(content);
     let mut cur: String = "";
     let mut i: Int = 0;
     while i < n {
         let c: String = char_at(content, i);
         if c == "\n" {
-            let v: String = parse_oot_val(cur, "theme");
+            let v: String = parse_oot_val(cur, key);
             if v != "" { return v; }
             cur = "";
         } else if c != "\r" {
@@ -40,30 +40,20 @@ pub fn parse_theme_from_oot(content: String) -> String {
         i = i + 1;
     }
     if cur != "" {
-        let v: String = parse_oot_val(cur, "theme");
+        let v: String = parse_oot_val(cur, key);
         if v != "" { return v; }
     }
     return "";
 }
 
+pub fn parse_theme_from_oot(content: String) -> String {
+    return parse_key_from_oot(content, "theme");
+}
+
 pub fn parse_mode_from_oot(content: String) -> String {
-    let n: Int = chars_len(content);
-    let mut cur: String = "";
-    let mut i: Int = 0;
-    while i < n {
-        let c: String = char_at(content, i);
-        if c == "\n" {
-            let v: String = parse_oot_val(cur, "mode");
-            if v != "" { return v; }
-            cur = "";
-        } else if c != "\r" {
-            cur = cur + c;
-        }
-        i = i + 1;
-    }
-    if cur != "" {
-        let v: String = parse_oot_val(cur, "mode");
-        if v != "" { return v; }
-    }
-    return "";
+    return parse_key_from_oot(content, "mode");
+}
+
+pub fn parse_border_from_oot(content: String) -> String {
+    return parse_key_from_oot(content, "border");
 }

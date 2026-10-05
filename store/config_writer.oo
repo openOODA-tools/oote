@@ -1,25 +1,42 @@
 // # Config Writer - Persistent Theme Storage
 //
-// Logline: Persists the active theme choice atomically into ~/.openooda/theme.oot.
+// Logline: Persists active theme choice, lighting mode, and border geometry into ~/.openooda/theme.oot.
 //
-// Setup: Requires FsWriteCap and EnvCap. Operates strictly under OCap discipline.
+// Setup: Requires FsWriteCap and EnvCap. Operates strictly under sovereign OCap discipline.
 //
 // Beats:
-//   1. Resolve destination config path via theme_config.oo.
-//   2. Format configuration document with theme and mode declarations.
+//   1. Resolve destination configuration path via theme_config.oo.
+//   2. Format configuration document with theme, mode, and border declarations.
 //   3. Open and write file stream; report success or failure status.
 
 import "std/fs/file/file_writer.oo";
 import "theme_config.oo";
 
-pub fn save_active_theme(fw: &FsWriteCap, env: &EnvCap, theme_name: String) -> Bool {
+pub fn save_theme_config(fw: &FsWriteCap, env: &EnvCap, theme_name: String, mode: String, border: String) -> Bool {
     let path: String = get_theme_config_path(env);
     if path == "" { return false; }
     let body: String = "# openOODA Global Theme Configuration\n" +
         "theme = \"" + theme_name + "\"\n" +
-        "mode = \"auto\"\n";
+        "mode = \"" + mode + "\"\n" +
+        "border = \"" + border + "\"\n";
     let w: FileWriter = file_writer_open(fw, path, false);
     let r: Result[FileWriter, String] = file_writer_write(fw, w, body);
     if r.is_err() { return false; }
     return true;
+}
+
+pub fn save_active_theme(fw: &FsWriteCap, env: &EnvCap, theme_name: String) -> Bool {
+    return save_theme_config(fw, env, theme_name, "auto", "round");
+}
+
+pub fn save_active_theme_and_mode(fw: &FsWriteCap, env: &EnvCap, theme_name: String, mode: String) -> Bool {
+    return save_theme_config(fw, env, theme_name, mode, "round");
+}
+
+pub fn save_active_mode(fw: &FsWriteCap, env: &EnvCap, theme_name: String, mode: String, border: String) -> Bool {
+    return save_theme_config(fw, env, theme_name, mode, border);
+}
+
+pub fn save_active_border(fw: &FsWriteCap, env: &EnvCap, theme_name: String, mode: String, border: String) -> Bool {
+    return save_theme_config(fw, env, theme_name, mode, border);
 }

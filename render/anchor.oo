@@ -1,6 +1,6 @@
 // # Render Subsystem Anchor - Output and SGR Re-Export
 //
-// Logline: Re-exports terminal escape generation, degradation, painting, and preview components.
+// Logline: Re-exports terminal escape generation, degradation, painter, and border components.
 //
 // Setup: Pure shim. Re-exports render domain modules.
 //
@@ -9,8 +9,10 @@
 //   2. Re-export capability-aware color degradation logic.
 //   3. Re-export text painter formatting helpers.
 //   4. Re-export interactive preview card renderer.
+//   5. Re-export border frame styling helpers.
 
 import "escape_seq.oo";
 import "degrade.oo";
 import "painter.oo";
 import "preview_card.oo";
+import "border.oo";

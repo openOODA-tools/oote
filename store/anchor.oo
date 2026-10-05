@@ -6,9 +6,11 @@
 //
 // Beats:
 //   1. Re-export .oot key-value parser.
-//   2. Re-export environment and disk theme resolver.
-//   3. Re-export atomic theme configuration writer.
+//   2. Re-export hardware RTC and circadian clock.
+//   3. Re-export environment and disk theme resolver.
+//   4. Re-export atomic theme configuration writer.
 
 import "config_reader.oo";
+import "clock.oo";
 import "theme_config.oo";
 import "config_writer.oo";
