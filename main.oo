@@ -5,8 +5,8 @@
 // Setup: Requires FsReadCap, FsWriteCap, EnvCap, and ProcessCap under sovereign OCap discipline.
 //
 // Beats:
-//   1. Parse command verbs: list, current, preview, set, get, --help, and --version.
-//   2. Route to specialized subcommand handlers.
+//   1. Parse command verbs: list, current, preview, set, get, mode, border, mascot, glyph, help, version.
+//   2. Route to specialized subcommand handlers with flag parsing.
 //   3. Manage terminal capability flags and return exit status.
 
 import "spec/color_model.oo";
@@ -14,7 +14,11 @@ import "spec/theme_model.oo";
 import "spec/token_names.oo";
 import "presets/preset_registry.oo";
 import "render/painter.oo";
+import "render/border.oo";
 import "render/preview_card.oo";
+import "mascot/mascot_model.oo";
+import "mascot/mascot_registry.oo";
+import "store/config_reader.oo";
 import "store/theme_config.oo";
 import "store/config_writer.oo";
 
@@ -22,13 +26,17 @@ fn cmd_help() -> Int {
     print("oote - openOODA theming engine (v0.1.0)\n\n" +
           "Usage: oote <command> [arguments]\n\n" +
           "Commands:\n" +
-          "  list             List all registered themes\n" +
-          "  current          Print active ecosystem theme name\n" +
-          "  preview [name]   Showcase palette, diffs, and syntax for a theme\n" +
-          "  set <name>       Persist global theme to ~/.openooda/theme.oot\n" +
-          "  get <token>      Display color and code for a semantic token\n" +
-          "  --help, -h       Display this help documentation\n" +
-          "  --version, -v    Display version information\n");
+          "  list                       List all registered themes\n" +
+          "  current [--mode]           Print active theme name or mode\n" +
+          "  preview [name] [flags]     Showcase palette, diffs, syntax, and mascot\n" +
+          "  set <name> [--dark|--light] Persist global theme to ~/.openooda/theme.oot\n" +
+          "  mode <toggle|light|dark|auto> Configure lighting mode\n" +
+          "  border [round|sharp|double|ascii] Get or set border shape\n" +
+          "  mascot [name] [emotion]    Render theme ASCII mascot\n" +
+          "  glyph [name] [emotion]     Print micro prompt glyph\n" +
+          "  get <token>                Display color and code for a semantic token\n" +
+          "  --help, -h                 Display this help documentation\n" +
+          "  --version, -v              Display version information\n");
     return 0;
 }
 
@@ -63,44 +71,152 @@ fn cmd_list(fs_r: &FsReadCap, env: &EnvCap, color_on: Bool, tc_on: Bool) -> Int 
     return 0;
 }
 
-fn cmd_current(fs_r: &FsReadCap, env: &EnvCap) -> Int {
+fn cmd_query(fs_r: &FsReadCap, env: &EnvCap, is_get: Bool, arg: String, color_on: Bool, tc_on: Bool) -> Int {
+    if !is_get {
+        if arg == "--mode" {
+            let dark: Bool = resolve_active_mode(fs_r, env);
+            print(if dark { "dark\n" } else { "light\n" });
+            return 0;
+        }
+        print(resolve_active_theme(fs_r, env) + "\n");
+        return 0;
+    }
+    if arg == "" || !is_valid_token(arg) {
+        print("oote: unknown token '" + arg + "'\n");
+        return 1;
+    }
     let active: String = resolve_active_theme(fs_r, env);
-    print(active + "\n");
+    let dark: Bool = resolve_active_mode(fs_r, env);
+    let c: Color = theme_get_color_mode(active, arg, dark);
+    let sample: String = paint_bold("■■ " + arg, c, color_on, tc_on);
+    print(active + "." + arg + ": " + sample + " (ANSI " + c.ansi16.to_string() + ")\n");
     return 0;
 }
 
-fn cmd_preview(theme_name: String, color_on: Bool, tc_on: Bool) -> Int {
-    if !theme_is_valid(theme_name) {
-        print("oote: unknown theme '" + theme_name + "'\nRun 'oote list' to see available themes.\n");
-        return 1;
+fn cmd_preview(fs_r: &FsReadCap, env: &EnvCap, args: List[String], color_on: Bool, tc_on: Bool) -> Int {
+    let argc: Int = list_len(args);
+    let mut theme: String = "";
+    let mut dark: Bool = resolve_active_mode(fs_r, env);
+    let mut border: String = resolve_active_border(fs_r, env);
+    let mut i: Int = 1;
+    while i < argc {
+        let a: String = list_get(args, i);
+        if a == "--dark" { dark = true; }
+        else if a == "--light" { dark = false; }
+        else if a == "--border" && i + 1 < argc { i = i + 1; border = list_get(args, i); }
+        else if str_starts_with(a, "--border=") { border = str_slice(a, 9, chars_len(a)); }
+        else if !str_starts_with(a, "-") && theme == "" {
+            if a == "auto" { theme = resolve_active_theme(fs_r, env); }
+            else if theme_is_valid(a) { theme = a; }
+            else {
+                print("oote: unknown theme '" + a + "'\nRun 'oote list' to see available themes.\n");
+                return 1;
+            }
+        }
+        i = i + 1;
     }
-    print(render_preview_card(theme_name, color_on, tc_on));
+    if theme == "" { theme = resolve_active_theme(fs_r, env); }
+    print(render_preview_card_full(theme, dark, border, color_on, tc_on));
     return 0;
 }
 
-fn cmd_set(fw: &FsWriteCap, env: &EnvCap, theme_name: String) -> Int {
-    if !theme_is_valid(theme_name) {
-        print("oote: unknown theme '" + theme_name + "'\nRun 'oote list' to see available themes.\n");
+fn cmd_set(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, args: List[String]) -> Int {
+    let argc: Int = list_len(args);
+    if argc <= 1 {
+        print("oote: missing theme name argument\nUsage: oote set <name> [--dark|--light]\n");
         return 1;
     }
-    let ok: Bool = save_active_theme(fw, env, theme_name);
-    if !ok {
+    let target: String = list_get(args, 1);
+    if target != "auto" && !theme_is_valid(target) {
+        print("oote: unknown theme '" + target + "'\nRun 'oote list' to see available themes.\n");
+        return 1;
+    }
+    let c1: String = read_config_content(fs_r, env);
+    let mut mode: String = parse_mode_from_oot(c1);
+    if mode == "" { mode = "auto"; }
+    let c2: String = read_config_content(fs_r, env);
+    let mut border: String = parse_border_from_oot(c2);
+    if border == "" { border = "round"; }
+    let mut i: Int = 2;
+    while i < argc {
+        let a: String = list_get(args, i);
+        if a == "--dark" { mode = "dark"; }
+        else if a == "--light" { mode = "light"; }
+        i = i + 1;
+    }
+    if !save_theme_config(fs_w, env, target, mode, border) {
         print("oote: failed to write theme configuration\n");
         return 2;
     }
-    print("oote: global theme set to '" + theme_name + "'\n");
+    print("oote: global theme set to '" + target + "'\n");
     return 0;
 }
 
-fn cmd_get(fs_r: &FsReadCap, env: &EnvCap, tok: String, color_on: Bool, tc_on: Bool) -> Int {
-    if !is_valid_token(tok) {
-        print("oote: unknown token '" + tok + "'\n");
+fn cmd_mode_border(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, verb: String, args: List[String]) -> Int {
+    let argc: Int = list_len(args);
+    let c1: String = read_config_content(fs_r, env);
+    let mut t: String = parse_theme_from_oot(c1);
+    if t == "" { t = "auto"; }
+    let c2: String = read_config_content(fs_r, env);
+    let mut m: String = parse_mode_from_oot(c2);
+    if m == "" { m = "auto"; }
+    let c3: String = read_config_content(fs_r, env);
+    let mut b: String = parse_border_from_oot(c3);
+    if b == "" { b = "round"; }
+    if verb == "border" {
+        if argc <= 1 { print(resolve_active_border(fs_r, env) + "\n"); return 0; }
+        let shape: String = list_get(args, 1);
+        if !border_is_valid(shape) {
+            print("oote: unknown border shape '" + shape + "'\nValid shapes: round, sharp, double, ascii\n");
+            return 1;
+        }
+        if !save_theme_config(fs_w, env, t, m, shape) { return 2; }
+        print("oote: border style set to '" + shape + "'\n");
+        return 0;
+    }
+    if argc <= 1 { print("oote: missing mode argument\nUsage: oote mode <toggle|light|dark|auto>\n"); return 1; }
+    let act: String = list_get(args, 1);
+    let new_m: String = if act == "toggle" { if resolve_active_mode(fs_r, env) { "light" } else { "dark" } }
+                        else if act == "light" || act == "dark" || act == "auto" { act }
+                        else { "" };
+    if new_m == "" {
+        print("oote: unknown mode '" + act + "'\nValid modes: toggle, light, dark, auto\n");
         return 1;
     }
-    let active: String = resolve_active_theme(fs_r, env);
-    let c: Color = theme_get_color(active, tok);
-    let sample: String = paint_bold("■■ " + tok, c, color_on, tc_on);
-    print(active + "." + tok + ": " + sample + " (ANSI " + c.ansi16.to_string() + ")\n");
+    if !save_theme_config(fs_w, env, t, new_m, b) { return 2; }
+    let msg: String = if act == "toggle" { "mode toggled to '" + new_m + "'\n" } else { "mode set to '" + new_m + "'\n" };
+    print("oote: " + msg);
+    return 0;
+}
+
+fn cmd_mascot_glyph(fs_r: &FsReadCap, env: &EnvCap, args: List[String], is_glyph: Bool, color_on: Bool, tc_on: Bool) -> Int {
+    let argc: Int = list_len(args);
+    let mut theme: String = "";
+    let mut emotion: String = if is_glyph { "idle" } else { "happy" };
+    if argc == 2 {
+        let a1: String = list_get(args, 1);
+        if is_valid_emotion(a1) { emotion = a1; }
+        else if a1 == "auto" { theme = resolve_active_theme(fs_r, env); }
+        else if theme_is_valid(a1) { theme = a1; }
+        else { print("oote: unknown theme '" + a1 + "'\nRun 'oote list' to see available themes.\n"); return 1; }
+    } else if argc >= 3 {
+        let a1: String = list_get(args, 1);
+        if a1 != "auto" && !theme_is_valid(a1) {
+            print("oote: unknown theme '" + a1 + "'\nRun 'oote list' to see available themes.\n");
+            return 1;
+        }
+        theme = if a1 == "auto" { resolve_active_theme(fs_r, env) } else { a1 };
+        emotion = list_get(args, 2);
+    }
+    if theme == "" { theme = resolve_active_theme(fs_r, env); }
+    if is_glyph {
+        print(mascot_glyph(theme, emotion) + "\n");
+        return 0;
+    }
+    let dark: Bool = resolve_active_mode(fs_r, env);
+    let acc: Color = theme_get_color_mode(theme, "ui_accent", dark);
+    let m: Mascot = mascot_get(theme, emotion);
+    print(mascot_render(m, color_on, tc_on, acc) + "\n");
     return 0;
 }
 
@@ -118,25 +234,19 @@ pub fn main(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, proc_cap: &Proces
         return Ok(0);
     }
     if verb == "list" { return Ok(cmd_list(fs_r, env, color_on, tc_on)); }
-    if verb == "current" { return Ok(cmd_current(fs_r, env)); }
-    if verb == "preview" {
-        let name: String = if argc > 1 { list_get(args, 1) } else { resolve_active_theme(fs_r, env) };
-        return Ok(cmd_preview(name, color_on, tc_on));
-    }
-    if verb == "set" {
-        if argc <= 1 {
-            print("oote: missing theme name argument\nUsage: oote set <name>\n");
-            return Ok(1);
-        }
-        return Ok(cmd_set(fs_w, env, list_get(args, 1)));
+    if verb == "current" {
+        let opt: String = if argc > 1 { list_get(args, 1) } else { "" };
+        return Ok(cmd_query(fs_r, env, false, opt, color_on, tc_on));
     }
     if verb == "get" {
-        if argc <= 1 {
-            print("oote: missing token argument\nUsage: oote get <token>\n");
-            return Ok(1);
-        }
-        return Ok(cmd_get(fs_r, env, list_get(args, 1), color_on, tc_on));
+        if argc <= 1 { print("oote: missing token argument\nUsage: oote get <token>\n"); return Ok(1); }
+        return Ok(cmd_query(fs_r, env, true, list_get(args, 1), color_on, tc_on));
     }
+    if verb == "preview" { return Ok(cmd_preview(fs_r, env, args, color_on, tc_on)); }
+    if verb == "set" { return Ok(cmd_set(fs_r, fs_w, env, args)); }
+    if verb == "mode" || verb == "border" { return Ok(cmd_mode_border(fs_r, fs_w, env, verb, args)); }
+    if verb == "mascot" { return Ok(cmd_mascot_glyph(fs_r, env, args, false, color_on, tc_on)); }
+    if verb == "glyph" { return Ok(cmd_mascot_glyph(fs_r, env, args, true, color_on, tc_on)); }
 
     print("oote: unknown command '" + verb + "'\nTry 'oote --help' for usage.\n");
     return Ok(1);

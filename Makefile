@@ -17,7 +17,7 @@ OO_LIST_AMBIENT_QUOTA ?= 8589934592
 BIN := dist/oote
 VERSION ?= 0.1.0
 
-SRC := $(wildcard *.oo) $(wildcard */*.oo)
+SRC := $(wildcard *.oo) $(wildcard */*.oo) $(wildcard */*/*.oo)
 
 .PHONY: all build check line-cap file-law academy density verify test clean
 
@@ -111,12 +111,35 @@ test: $(BIN)
 	@./$(BIN) --version > /dev/null && echo "PASS: --version"
 	@echo "=== testing list ==="
 	@./$(BIN) list | grep -q "minimax" && echo "PASS: list contains minimax"
+	@./$(BIN) list | grep -q "frost" && echo "PASS: list contains monthly frost"
+	@./$(BIN) list | grep -q "spooky" && echo "PASS: list contains holiday spooky"
 	@echo "=== testing current ==="
 	@./$(BIN) current > /dev/null && echo "PASS: current theme query"
+	@./$(BIN) current --mode > /dev/null && echo "PASS: current mode query"
 	@echo "=== testing preview ==="
 	@./$(BIN) preview minimax > /dev/null && echo "PASS: preview minimax"
+	@./$(BIN) preview frost --dark > /dev/null && echo "PASS: preview frost --dark"
+	@./$(BIN) preview ember --light --border double > /dev/null && echo "PASS: preview ember --light --border double"
 	@echo "=== testing get token ==="
 	@./$(BIN) get status_success > /dev/null && echo "PASS: get token"
+	@echo "=== testing mascot ==="
+	@./$(BIN) mascot minimax happy > /dev/null && echo "PASS: mascot minimax happy"
+	@./$(BIN) mascot spooky alert > /dev/null && echo "PASS: mascot spooky alert"
+	@echo "=== testing glyph ==="
+	@./$(BIN) glyph minimax idle | grep -q "(^.^)" && echo "PASS: glyph minimax"
+	@./$(BIN) glyph spooky > /dev/null && echo "PASS: glyph spooky"
+	@echo "=== testing border ==="
+	@./$(BIN) border > /dev/null && echo "PASS: get border"
+	@./$(BIN) border ascii > /dev/null && echo "PASS: set border ascii"
+	@./$(BIN) border round > /dev/null && echo "PASS: set border round"
+	@echo "=== testing mode ==="
+	@./$(BIN) mode light > /dev/null && echo "PASS: mode light"
+	@./$(BIN) mode dark > /dev/null && echo "PASS: mode dark"
+	@./$(BIN) mode toggle > /dev/null && echo "PASS: mode toggle"
+	@./$(BIN) mode auto > /dev/null && echo "PASS: mode auto"
+	@echo "=== testing set ==="
+	@./$(BIN) set minimax --dark > /dev/null && echo "PASS: set minimax --dark"
+	@./$(BIN) set auto > /dev/null && echo "PASS: set auto"
 	@echo "ALL TESTS PASSED"
 
 clean:
