@@ -1,0 +1,16 @@
+// # Spec Subsystem Anchor - Core Data Contracts
+//
+// Logline: Unites color representations, typography styles, and token taxonomy definitions.
+//
+// Setup: Pure shim. Re-exports spec domain modules.
+//
+// Beats:
+//   1. Re-export color representations.
+//   2. Re-export style and font attribute structures.
+//   3. Re-export semantic token vocabulary.
+//   4. Re-export theme metadata models.
+
+import "color_model.oo";
+import "style_model.oo";
+import "token_names.oo";
+import "theme_model.oo";

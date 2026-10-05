@@ -1,0 +1,49 @@
+// # Token Names - Canonical Semantic Taxonomy
+//
+// Logline: Canonical token vocabulary establishing a shared contract across all openOODA tools.
+//
+// Setup: Pure string predicates and taxonomy mapping. Zero ambient authority.
+//
+// Beats:
+//   1. Enumerate canonical token names spanning UI, status, syntax, diffs, search, shell, and logs.
+//   2. Classify tokens into cohesive functional domains.
+//   3. Validate whether arbitrary strings conform to the taxonomy.
+
+pub fn token_list() -> String {
+    return "ui_bg ui_fg ui_surface ui_border ui_border_accent ui_muted ui_dim ui_accent " +
+           "status_success status_warning status_error status_info " +
+           "syntax_keyword syntax_string syntax_number syntax_type syntax_fn syntax_var syntax_comment syntax_op syntax_punct " +
+           "diff_added diff_removed diff_context diff_header " +
+           "match_hit match_path match_line_num match_col_num " +
+           "shell_prompt shell_builtin shell_host_bin shell_nav shell_intent " +
+           "log_trace log_debug log_info log_warn log_error";
+}
+
+pub fn is_valid_token(tok: String) -> Bool {
+    let t: String = " " + tok + " ";
+    let haystack: String = " " + token_list() + " ";
+    return str_contains(haystack, t);
+}
+
+pub fn token_group(tok: String) -> String {
+    if str_starts_with(tok, "ui_") { return "ui"; }
+    if str_starts_with(tok, "status_") { return "status"; }
+    if str_starts_with(tok, "syntax_") { return "syntax"; }
+    if str_starts_with(tok, "diff_") { return "diff"; }
+    if str_starts_with(tok, "match_") { return "search"; }
+    if str_starts_with(tok, "shell_") { return "shell"; }
+    if str_starts_with(tok, "log_") { return "log"; }
+    return "unknown";
+}
+
+pub fn token_label(tok: String) -> String {
+    if tok == "ui_bg" { return "Background"; }
+    if tok == "ui_fg" { return "Foreground"; }
+    if tok == "ui_accent" { return "UI Accent"; }
+    if tok == "status_success" { return "Success"; }
+    if tok == "status_warning" { return "Warning"; }
+    if tok == "status_error" { return "Error"; }
+    if tok == "diff_added" { return "Diff Added"; }
+    if tok == "diff_removed" { return "Diff Removed"; }
+    return tok;
+}

@@ -1,0 +1,83 @@
+// # Minimax Preset - Dark Neutral with Amber Accent
+//
+// Logline: Canonical openOODA theme featuring obsidian neutral canvas with high-contrast amber accents.
+//
+// Setup: Pure color mappings. Relies on spec/color_model.oo and spec/theme_model.oo.
+//
+// Beats:
+//   1. Define core color swatches for neutral shades and accents.
+//   2. Map UI, status, and diff tokens to the palette.
+//   3. Map syntax, shell, and log tokens to the palette.
+//   4. Expose unified token color resolver and theme metadata.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+
+fn mm_ui_token(tok: String) -> Color {
+    if tok == "ui_bg" { return color_hex("#0E0E10", 0); }
+    if tok == "ui_fg" { return color_hex("#E5E5E5", 37); }
+    if tok == "ui_surface" { return color_hex("#1A1A1D", 0); }
+    if tok == "ui_border" { return color_hex("#5A5A5A", 90); }
+    if tok == "ui_border_accent" { return color_hex("#E0A040", 33); }
+    if tok == "ui_muted" { return color_hex("#9A9A9A", 90); }
+    if tok == "ui_dim" { return color_hex("#5A5A5A", 90); }
+    if tok == "ui_accent" { return color_hex("#E0A040", 33); }
+    return color_none();
+}
+
+fn mm_status_diff_token(tok: String) -> Color {
+    if tok == "status_success" { return color_hex("#7AC888", 32); }
+    if tok == "status_warning" { return color_hex("#E0A040", 33); }
+    if tok == "status_error" { return color_hex("#E07060", 31); }
+    if tok == "status_info" { return color_hex("#7AB8FF", 34); }
+    if tok == "diff_added" { return color_hex("#7AC888", 32); }
+    if tok == "diff_removed" { return color_hex("#E07060", 31); }
+    if tok == "diff_context" { return color_hex("#9A9A9A", 90); }
+    if tok == "diff_header" { return color_hex("#E0A040", 33); }
+    return color_none();
+}
+
+fn mm_syntax_token(tok: String) -> Color {
+    if tok == "syntax_keyword" { return color_hex("#E0A040", 33); }
+    if tok == "syntax_string" { return color_hex("#7AC888", 32); }
+    if tok == "syntax_number" { return color_hex("#E07060", 31); }
+    if tok == "syntax_type" { return color_hex("#7AB8FF", 34); }
+    if tok == "syntax_fn" { return color_hex("#7AB8FF", 34); }
+    if tok == "syntax_var" { return color_hex("#E5E5E5", 37); }
+    if tok == "syntax_comment" { return color_hex("#9A9A9A", 90); }
+    if tok == "syntax_op" { return color_hex("#E0A040", 33); }
+    if tok == "syntax_punct" { return color_hex("#9A9A9A", 90); }
+    return color_none();
+}
+
+fn mm_shell_log_token(tok: String) -> Color {
+    if tok == "match_hit" { return color_hex("#E0A040", 33); }
+    if tok == "match_path" { return color_hex("#7AB8FF", 34); }
+    if tok == "match_line_num" { return color_hex("#7AC888", 32); }
+    if tok == "match_col_num" { return color_hex("#E0A040", 33); }
+    if tok == "shell_prompt" { return color_hex("#E0A040", 33); }
+    if tok == "shell_builtin" { return color_hex("#E0A040", 33); }
+    if tok == "shell_host_bin" { return color_hex("#7AB8FF", 34); }
+    if tok == "shell_nav" { return color_hex("#7AC888", 32); }
+    if tok == "shell_intent" { return color_hex("#D080E0", 35); }
+    if tok == "log_trace" { return color_hex("#5A5A5A", 90); }
+    if tok == "log_debug" { return color_hex("#9A9A9A", 90); }
+    if tok == "log_info" { return color_hex("#7AB8FF", 34); }
+    if tok == "log_warn" { return color_hex("#E0A040", 33); }
+    if tok == "log_error" { return color_hex("#E07060", 31); }
+    return color_none();
+}
+
+pub fn theme_minimax_color(tok: String) -> Color {
+    let c1: Color = mm_ui_token(tok);
+    if c1.is_set { return c1; }
+    let c2: Color = mm_status_diff_token(tok);
+    if c2.is_set { return c2; }
+    let c3: Color = mm_syntax_token(tok);
+    if c3.is_set { return c3; }
+    return mm_shell_log_token(tok);
+}
+
+pub fn theme_minimax_meta() -> ThemeMeta {
+    return theme_meta_new("minimax", "openOODA", true, "Obsidian neutral with warm amber accents");
+}

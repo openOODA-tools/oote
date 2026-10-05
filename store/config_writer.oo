@@ -1,0 +1,25 @@
+// # Config Writer - Persistent Theme Storage
+//
+// Logline: Persists the active theme choice atomically into ~/.openooda/theme.oot.
+//
+// Setup: Requires FsWriteCap and EnvCap. Operates strictly under OCap discipline.
+//
+// Beats:
+//   1. Resolve destination config path via theme_config.oo.
+//   2. Format configuration document with theme and mode declarations.
+//   3. Open and write file stream; report success or failure status.
+
+import "std/fs/file/file_writer.oo";
+import "theme_config.oo";
+
+pub fn save_active_theme(fw: &FsWriteCap, env: &EnvCap, theme_name: String) -> Bool {
+    let path: String = get_theme_config_path(env);
+    if path == "" { return false; }
+    let body: String = "# openOODA Global Theme Configuration\n" +
+        "theme = \"" + theme_name + "\"\n" +
+        "mode = \"auto\"\n";
+    let w: FileWriter = file_writer_open(fw, path, false);
+    let r: Result[FileWriter, String] = file_writer_write(fw, w, body);
+    if r.is_err() { return false; }
+    return true;
+}

@@ -1,0 +1,43 @@
+// # Color Degradation - Capability-Aware SGR Selection
+//
+// Logline: Converts color and style models into appropriate SGR sequences based on terminal capability.
+//
+// Setup: Pure mapping. Depends on escape_seq.oo, color_model.oo, and style_model.oo.
+//
+// Beats:
+//   1. Guard against suppressed color states (NO_COLOR, plain text).
+//   2. Emit 24-bit TrueColor sequences when terminal supports TrueColor.
+//   3. Degrade to 16-color ANSI codes when TrueColor is unavailable.
+//   4. Combine typographic attributes with foreground and background codes.
+
+import "escape_seq.oo";
+import "spec/color_model.oo";
+import "spec/style_model.oo";
+
+pub fn color_to_fg_sgr(c: Color, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on || !c.is_set { return ""; }
+    if tc_on {
+        return ansi_fg_truecolor(c.r, c.g, c.b);
+    }
+    return ansi_fg_16(c.ansi16);
+}
+
+pub fn color_to_bg_sgr(c: Color, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on || !c.is_set { return ""; }
+    if tc_on {
+        return ansi_bg_truecolor(c.r, c.g, c.b);
+    }
+    return ansi_bg_16(c.ansi16);
+}
+
+pub fn style_to_sgr(s: Style, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on { return ""; }
+    let mut out: String = "";
+    let attr: String = ansi_attr(s.bold, s.dim, s.underline, s.reverse);
+    if attr != "" { out = out + attr; }
+    let fg_sgr: String = color_to_fg_sgr(s.fg, color_on, tc_on);
+    if fg_sgr != "" { out = out + fg_sgr; }
+    let bg_sgr: String = color_to_bg_sgr(s.bg, color_on, tc_on);
+    if bg_sgr != "" { out = out + bg_sgr; }
+    return out;
+}

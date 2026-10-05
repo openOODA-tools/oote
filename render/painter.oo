@@ -1,0 +1,41 @@
+// # Text Painter - Formatted Text Wrapping
+//
+// Logline: Wraps string content with terminal SGR styling and trailing reset escapes.
+//
+// Setup: Pure string wrapping. Depends on escape_seq.oo, degrade.oo, and spec models.
+//
+// Beats:
+//   1. Guard against empty text or unstyled pass-through.
+//   2. Wrap text with active SGR prefix and trailing ANSI reset.
+//   3. Expose convenience wrappers for foreground, bold, and dim segments.
+
+import "escape_seq.oo";
+import "degrade.oo";
+import "spec/color_model.oo";
+import "spec/style_model.oo";
+
+pub fn paint_style(text: String, s: Style, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on || text == "" { return text; }
+    let pfx: String = style_to_sgr(s, color_on, tc_on);
+    if pfx == "" { return text; }
+    return pfx + text + ansi_reset();
+}
+
+pub fn paint_fg(text: String, c: Color, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on || text == "" || !c.is_set { return text; }
+    let pfx: String = color_to_fg_sgr(c, color_on, tc_on);
+    if pfx == "" { return text; }
+    return pfx + text + ansi_reset();
+}
+
+pub fn paint_bold(text: String, c: Color, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on || text == "" { return text; }
+    let s: Style = style_bold_fg(c);
+    return paint_style(text, s, color_on, tc_on);
+}
+
+pub fn paint_dim(text: String, c: Color, color_on: Bool, tc_on: Bool) -> String {
+    if !color_on || text == "" { return text; }
+    let s: Style = style_with_dim(style_fg(c));
+    return paint_style(text, s, color_on, tc_on);
+}

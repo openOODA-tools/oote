@@ -1,0 +1,89 @@
+// # Preview Card - Terminal Theme Showcase
+//
+// Logline: Renders an interactive terminal showcase displaying theme swatches, diffs, syntax, and prompt.
+//
+// Setup: Pure string assembly. Queries preset registry and applies painter formatting.
+//
+// Beats:
+//   1. Render header with theme metadata and lighting status.
+//   2. Render color swatches for core and status tokens.
+//   3. Render simulated diff, syntax highlight, and shell prompt blocks.
+//   4. Assemble into a framed terminal showcase card.
+
+import "painter.oo";
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+import "presets/preset_registry.oo";
+
+fn preview_header(theme_name: String, meta: ThemeMeta, color_on: Bool, tc_on: Bool) -> String {
+    let accent: Color = theme_get_color(theme_name, "ui_accent");
+    let dim_c: Color = theme_get_color(theme_name, "ui_dim");
+    let title: String = paint_bold("══ " + meta.name + " ══", accent, color_on, tc_on);
+    let desc: String = paint_fg(" (" + meta.description + ")", dim_c, color_on, tc_on);
+    return title + desc + "\n";
+}
+
+fn preview_swatches(theme_name: String, color_on: Bool, tc_on: Bool) -> String {
+    let c_acc: Color = theme_get_color(theme_name, "ui_accent");
+    let c_suc: Color = theme_get_color(theme_name, "status_success");
+    let c_wrn: Color = theme_get_color(theme_name, "status_warning");
+    let c_err: Color = theme_get_color(theme_name, "status_error");
+    let c_inf: Color = theme_get_color(theme_name, "status_info");
+
+    let b_acc: String = paint_bold(" [ACCENT] ", c_acc, color_on, tc_on);
+    let b_suc: String = paint_bold(" [SUCCESS] ", c_suc, color_on, tc_on);
+    let b_wrn: String = paint_bold(" [WARN] ", c_wrn, color_on, tc_on);
+    let b_err: String = paint_bold(" [ERROR] ", c_err, color_on, tc_on);
+    let b_inf: String = paint_bold(" [INFO] ", c_inf, color_on, tc_on);
+    return "  Swatches: " + b_acc + b_suc + b_wrn + b_err + b_inf + "\n";
+}
+
+fn preview_diff(theme_name: String, color_on: Bool, tc_on: Bool) -> String {
+    let c_hdr: Color = theme_get_color(theme_name, "diff_header");
+    let c_add: Color = theme_get_color(theme_name, "diff_added");
+    let c_rem: Color = theme_get_color(theme_name, "diff_removed");
+
+    let l_hdr: String = paint_fg("  @@ -1,4 +1,4 @@", c_hdr, color_on, tc_on);
+    let l_rem: String = paint_fg("  - legacy_hardcoded_styling()", c_rem, color_on, tc_on);
+    let l_add: String = paint_fg("  + oote_theme_engine_dispatch()", c_add, color_on, tc_on);
+    return "  Diff Preview:\n" + l_hdr + "\n" + l_rem + "\n" + l_add + "\n";
+}
+
+fn preview_syntax(theme_name: String, color_on: Bool, tc_on: Bool) -> String {
+    let c_kw: Color = theme_get_color(theme_name, "syntax_keyword");
+    let c_fn: Color = theme_get_color(theme_name, "syntax_fn");
+    let c_ty: Color = theme_get_color(theme_name, "syntax_type");
+    let c_st: Color = theme_get_color(theme_name, "syntax_string");
+    let c_cm: Color = theme_get_color(theme_name, "syntax_comment");
+
+    let w_pub: String = paint_fg("pub fn ", c_kw, color_on, tc_on);
+    let w_fn: String = paint_bold("render_theme", c_fn, color_on, tc_on);
+    let w_arg: String = paint_fg("() -> ", c_kw, color_on, tc_on);
+    let w_ret: String = paint_fg("String", c_ty, color_on, tc_on);
+    let w_str: String = paint_fg("\"sovereign\"", c_st, color_on, tc_on);
+    let w_cmt: String = paint_fg(" // openOODA theme", c_cm, color_on, tc_on);
+    return "  Syntax Preview:\n  " + w_pub + w_fn + w_arg + w_ret + " { return " + w_str + "; }" + w_cmt + "\n";
+}
+
+fn preview_shell(theme_name: String, color_on: Bool, tc_on: Bool) -> String {
+    let c_sh: Color = theme_get_color(theme_name, "shell_prompt");
+    let c_nv: Color = theme_get_color(theme_name, "shell_nav");
+    let c_bu: Color = theme_get_color(theme_name, "shell_builtin");
+
+    let p_ctx: String = paint_fg("openooda", c_sh, color_on, tc_on);
+    let p_dir: String = paint_bold(" ~/oote", c_nv, color_on, tc_on);
+    let p_sym: String = paint_fg(" > ", c_sh, color_on, tc_on);
+    let p_cmd: String = paint_fg("theme set minimax", c_bu, color_on, tc_on);
+    return "  Shell Preview:\n  " + p_ctx + p_dir + p_sym + p_cmd + "\n";
+}
+
+pub fn render_preview_card(theme_name: String, color_on: Bool, tc_on: Bool) -> String {
+    let meta: ThemeMeta = theme_get_meta(theme_name);
+    let mut out: String = "\n";
+    out = out + preview_header(theme_name, meta, color_on, tc_on);
+    out = out + preview_swatches(theme_name, color_on, tc_on) + "\n";
+    out = out + preview_diff(theme_name, color_on, tc_on) + "\n";
+    out = out + preview_syntax(theme_name, color_on, tc_on) + "\n";
+    out = out + preview_shell(theme_name, color_on, tc_on);
+    return out;
+}

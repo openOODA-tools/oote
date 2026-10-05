@@ -1,0 +1,14 @@
+// # Store Subsystem Anchor - Persistence Re-Export
+//
+// Logline: Re-exports theme configuration parsing, hydration, and persistence modules.
+//
+// Setup: Pure shim. Re-exports store domain modules.
+//
+// Beats:
+//   1. Re-export .oot key-value parser.
+//   2. Re-export environment and disk theme resolver.
+//   3. Re-export atomic theme configuration writer.
+
+import "config_reader.oo";
+import "theme_config.oo";
+import "config_writer.oo";

@@ -1,0 +1,54 @@
+// # Theme Registry - Catalog Dispatcher
+//
+// Logline: Unified theme catalog dispatcher routing token queries to registered presets.
+//
+// Setup: Pure routing. Imports spec models and all built-in preset definitions.
+//
+// Beats:
+//   1. Enumerate all registered theme names in standard display order.
+//   2. Validate whether a requested theme name is known.
+//   3. Route semantic token color queries to the matching preset.
+//   4. Route metadata queries to the matching preset.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+import "preset_minimax.oo";
+import "preset_1982.oo";
+import "preset_nord.oo";
+import "preset_dracula.oo";
+import "preset_cyberpunk.oo";
+import "preset_plain.oo";
+
+pub fn theme_list() -> String {
+    return "minimax 1982 nord dracula cyberpunk plain";
+}
+
+pub fn theme_is_valid(name: String) -> Bool {
+    if name == "minimax" { return true; }
+    if name == "1982" { return true; }
+    if name == "nord" { return true; }
+    if name == "dracula" { return true; }
+    if name == "cyberpunk" { return true; }
+    if name == "plain" { return true; }
+    return false;
+}
+
+pub fn theme_get_color(name: String, tok: String) -> Color {
+    if name == "minimax" { return theme_minimax_color(tok); }
+    if name == "1982" { return theme_1982_color(tok); }
+    if name == "nord" { return theme_nord_color(tok); }
+    if name == "dracula" { return theme_dracula_color(tok); }
+    if name == "cyberpunk" { return theme_cyberpunk_color(tok); }
+    if name == "plain" { return theme_plain_color(tok); }
+    return theme_minimax_color(tok);
+}
+
+pub fn theme_get_meta(name: String) -> ThemeMeta {
+    if name == "minimax" { return theme_minimax_meta(); }
+    if name == "1982" { return theme_1982_meta(); }
+    if name == "nord" { return theme_nord_meta(); }
+    if name == "dracula" { return theme_dracula_meta(); }
+    if name == "cyberpunk" { return theme_cyberpunk_meta(); }
+    if name == "plain" { return theme_plain_meta(); }
+    return theme_minimax_meta();
+}

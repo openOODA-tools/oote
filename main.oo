@@ -1,0 +1,143 @@
+// # oote Main Entry Point - CLI Driver
+//
+// Logline: Command-line interface driver for listing, previewing, and persisting openOODA themes.
+//
+// Setup: Requires FsReadCap, FsWriteCap, EnvCap, and ProcessCap under sovereign OCap discipline.
+//
+// Beats:
+//   1. Parse command verbs: list, current, preview, set, get, --help, and --version.
+//   2. Route to specialized subcommand handlers.
+//   3. Manage terminal capability flags and return exit status.
+
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+import "spec/token_names.oo";
+import "presets/preset_registry.oo";
+import "render/painter.oo";
+import "render/preview_card.oo";
+import "store/theme_config.oo";
+import "store/config_writer.oo";
+
+fn cmd_help() -> Int {
+    print("oote - openOODA theming engine (v0.1.0)\n\n" +
+          "Usage: oote <command> [arguments]\n\n" +
+          "Commands:\n" +
+          "  list             List all registered themes\n" +
+          "  current          Print active ecosystem theme name\n" +
+          "  preview [name]   Showcase palette, diffs, and syntax for a theme\n" +
+          "  set <name>       Persist global theme to ~/.openooda/theme.oot\n" +
+          "  get <token>      Display color and code for a semantic token\n" +
+          "  --help, -h       Display this help documentation\n" +
+          "  --version, -v    Display version information\n");
+    return 0;
+}
+
+fn cmd_list(fs_r: &FsReadCap, env: &EnvCap, color_on: Bool, tc_on: Bool) -> Int {
+    let active: String = resolve_active_theme(fs_r, env);
+    let names: String = theme_list();
+    print("Available Themes:\n");
+    let mut rest: String = names;
+    while chars_len(rest) > 0 {
+        let trimmed: String = str_trim(rest);
+        if trimmed == "" { break; }
+        let mut sp_idx: Int = -1;
+        let n: Int = chars_len(trimmed);
+        let mut i: Int = 0;
+        while i < n {
+            if char_at(trimmed, i) == " " { sp_idx = i; break; }
+            i = i + 1;
+        }
+        let item: String = if sp_idx > 0 { str_slice(trimmed, 0, sp_idx) } else { trimmed };
+        rest = if sp_idx > 0 { str_slice(trimmed, sp_idx + 1, n) } else { "" };
+
+        let meta: ThemeMeta = theme_get_meta(item);
+        let acc: Color = theme_get_color(item, "ui_accent");
+        if item == active {
+            let marker: String = paint_bold("  * ", acc, color_on, tc_on);
+            let name_str: String = paint_bold(item, acc, color_on, tc_on);
+            print(marker + name_str + " - " + meta.description + " [active]\n");
+        } else {
+            print("    " + item + " - " + meta.description + "\n");
+        }
+    }
+    return 0;
+}
+
+fn cmd_current(fs_r: &FsReadCap, env: &EnvCap) -> Int {
+    let active: String = resolve_active_theme(fs_r, env);
+    print(active + "\n");
+    return 0;
+}
+
+fn cmd_preview(theme_name: String, color_on: Bool, tc_on: Bool) -> Int {
+    if !theme_is_valid(theme_name) {
+        print("oote: unknown theme '" + theme_name + "'\nRun 'oote list' to see available themes.\n");
+        return 1;
+    }
+    print(render_preview_card(theme_name, color_on, tc_on));
+    return 0;
+}
+
+fn cmd_set(fw: &FsWriteCap, env: &EnvCap, theme_name: String) -> Int {
+    if !theme_is_valid(theme_name) {
+        print("oote: unknown theme '" + theme_name + "'\nRun 'oote list' to see available themes.\n");
+        return 1;
+    }
+    let ok: Bool = save_active_theme(fw, env, theme_name);
+    if !ok {
+        print("oote: failed to write theme configuration\n");
+        return 2;
+    }
+    print("oote: global theme set to '" + theme_name + "'\n");
+    return 0;
+}
+
+fn cmd_get(fs_r: &FsReadCap, env: &EnvCap, tok: String, color_on: Bool, tc_on: Bool) -> Int {
+    if !is_valid_token(tok) {
+        print("oote: unknown token '" + tok + "'\n");
+        return 1;
+    }
+    let active: String = resolve_active_theme(fs_r, env);
+    let c: Color = theme_get_color(active, tok);
+    let sample: String = paint_bold("■■ " + tok, c, color_on, tc_on);
+    print(active + "." + tok + ": " + sample + " (ANSI " + c.ansi16.to_string() + ")\n");
+    return 0;
+}
+
+pub fn main(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, proc_cap: &ProcessCap, args: List[String]) -> Result[Int, String] {
+    let argc: Int = list_len(args);
+    let color_on: Bool = is_color_enabled(env, false);
+    let tc_on: Bool = is_truecolor_enabled(env);
+
+    if argc == 0 { return Ok(cmd_help()); }
+    let verb: String = list_get(args, 0);
+
+    if verb == "--help" || verb == "-h" || verb == "help" { return Ok(cmd_help()); }
+    if verb == "--version" || verb == "-v" || verb == "version" {
+        print("oote 0.1.0 (openOODA sovereign theme engine)\n");
+        return Ok(0);
+    }
+    if verb == "list" { return Ok(cmd_list(fs_r, env, color_on, tc_on)); }
+    if verb == "current" { return Ok(cmd_current(fs_r, env)); }
+    if verb == "preview" {
+        let name: String = if argc > 1 { list_get(args, 1) } else { resolve_active_theme(fs_r, env) };
+        return Ok(cmd_preview(name, color_on, tc_on));
+    }
+    if verb == "set" {
+        if argc <= 1 {
+            print("oote: missing theme name argument\nUsage: oote set <name>\n");
+            return Ok(1);
+        }
+        return Ok(cmd_set(fs_w, env, list_get(args, 1)));
+    }
+    if verb == "get" {
+        if argc <= 1 {
+            print("oote: missing token argument\nUsage: oote get <token>\n");
+            return Ok(1);
+        }
+        return Ok(cmd_get(fs_r, env, list_get(args, 1), color_on, tc_on));
+    }
+
+    print("oote: unknown command '" + verb + "'\nTry 'oote --help' for usage.\n");
+    return Ok(1);
+}

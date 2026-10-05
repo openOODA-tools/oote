@@ -1,0 +1,70 @@
+// # Style Model - Typography and Color Combination
+//
+// Logline: Composable styling record uniting foreground, background, and ANSI font attributes.
+//
+// Setup: Pure value type representation. Depends only on color_model.oo.
+//
+// Beats:
+//   1. Declare Style structure uniting colors and typographic switches.
+//   2. Provide constructors for basic and compound terminal styling.
+//   3. Expose chained modifiers for bold, dim, underline, and inverted text.
+
+import "color_model.oo";
+
+pub type Style = struct {
+    fg: Color,
+    bg: Color,
+    bold: Bool,
+    dim: Bool,
+    italic: Bool,
+    underline: Bool,
+    reverse: Bool
+};
+
+pub fn style_empty() -> Style {
+    return Style {
+        fg: color_none(),
+        bg: color_none(),
+        bold: false,
+        dim: false,
+        italic: false,
+        underline: false,
+        reverse: false
+    };
+}
+
+pub fn style_fg(c: Color) -> Style {
+    let mut s: Style = style_empty();
+    s.fg = c;
+    return s;
+}
+
+pub fn style_bold_fg(c: Color) -> Style {
+    let mut s: Style = style_fg(c);
+    s.bold = true;
+    return s;
+}
+
+pub fn style_with_bg(s: Style, bg: Color) -> Style {
+    let mut out: Style = s;
+    out.bg = bg;
+    return out;
+}
+
+pub fn style_with_dim(s: Style) -> Style {
+    let mut out: Style = s;
+    out.dim = true;
+    return out;
+}
+
+pub fn style_with_underline(s: Style) -> Style {
+    let mut out: Style = s;
+    out.underline = true;
+    return out;
+}
+
+pub fn style_with_reverse(s: Style) -> Style {
+    let mut out: Style = s;
+    out.reverse = true;
+    return out;
+}

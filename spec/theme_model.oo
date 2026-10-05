@@ -1,0 +1,38 @@
+// # Theme Model - Theme Metadata and Representation
+//
+// Logline: Encapsulates theme metadata, description, and lighting characteristics.
+//
+// Setup: Pure value type definitions. Operates with zero ambient authority.
+//
+// Beats:
+//   1. Define ThemeMeta structure for descriptive and display attributes.
+//   2. Provide constructor helper for theme metadata instantiation.
+//   3. Expose field accessor helpers for safe consumption.
+
+pub type ThemeMeta = struct {
+    name: String,
+    author: String,
+    dark: Bool,
+    description: String
+};
+
+pub fn theme_meta_new(name: String, author: String, dark: Bool, desc: String) -> ThemeMeta {
+    return ThemeMeta {
+        name: name,
+        author: author,
+        dark: dark,
+        description: desc
+    };
+}
+
+pub fn theme_meta_name(m: ThemeMeta) -> String {
+    return m.name;
+}
+
+pub fn theme_meta_desc(m: ThemeMeta) -> String {
+    return m.description;
+}
+
+pub fn theme_meta_is_dark(m: ThemeMeta) -> Bool {
+    return m.dark;
+}

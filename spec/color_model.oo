@@ -1,0 +1,66 @@
+// # Color Model - RGB and ANSI Representation
+//
+// Logline: Data structure and conversion primitives for 24-bit TrueColor and 16-color ANSI codes.
+//
+// Setup: Pure string and integer arithmetic. Operates with zero ambient authority.
+//
+// Beats:
+//   1. Define Color structure holding RGB channels and 16-color ANSI fallback.
+//   2. Parse 6-digit hex color strings into discrete 8-bit RGB channels.
+//   3. Provide constructor helpers for RGB, hex, and empty colors.
+
+pub type Color = struct {
+    r: Int,
+    g: Int,
+    b: Int,
+    ansi16: Int,
+    is_set: Bool
+};
+
+pub fn color_none() -> Color {
+    return Color { r: 0, g: 0, b: 0, ansi16: 0, is_set: false };
+}
+
+pub fn color_rgb(r: Int, g: Int, b: Int, ansi16: Int) -> Color {
+    return Color { r: r, g: g, b: b, ansi16: ansi16, is_set: true };
+}
+
+fn hex_digit(c: String) -> Int {
+    if c == "0" { return 0; }
+    if c == "1" { return 1; }
+    if c == "2" { return 2; }
+    if c == "3" { return 3; }
+    if c == "4" { return 4; }
+    if c == "5" { return 5; }
+    if c == "6" { return 6; }
+    if c == "7" { return 7; }
+    if c == "8" { return 8; }
+    if c == "9" { return 9; }
+    if c == "a" || c == "A" { return 10; }
+    if c == "b" || c == "B" { return 11; }
+    if c == "c" || c == "C" { return 12; }
+    if c == "d" || c == "D" { return 13; }
+    if c == "e" || c == "E" { return 14; }
+    if c == "f" || c == "F" { return 15; }
+    return 0;
+}
+
+fn hex_byte(hex: String, hi: Int, lo: Int) -> Int {
+    let n: Int = chars_len(hex);
+    let mut h: Int = 0;
+    let mut l: Int = 0;
+    if hi < n { h = hex_digit(char_at(hex, hi)); }
+    if lo < n { l = hex_digit(char_at(hex, lo)); }
+    return h * 16 + l;
+}
+
+pub fn hex_to_r(hex: String) -> Int { return hex_byte(hex, 1, 2); }
+pub fn hex_to_g(hex: String) -> Int { return hex_byte(hex, 3, 4); }
+pub fn hex_to_b(hex: String) -> Int { return hex_byte(hex, 5, 6); }
+
+pub fn color_hex(hex: String, ansi16: Int) -> Color {
+    let r: Int = hex_to_r(hex);
+    let g: Int = hex_to_g(hex);
+    let b: Int = hex_to_b(hex);
+    return Color { r: r, g: g, b: b, ansi16: ansi16, is_set: true };
+}

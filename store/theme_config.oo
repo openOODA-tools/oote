@@ -1,0 +1,66 @@
+// # Theme Config Resolver - Environment and File Hydration
+//
+// Logline: Resolves active theme name and color fidelity flags from disk and environment capabilities.
+//
+// Setup: Requires FsReadCap and EnvCap. Degrades gracefully to defaults if paths are unreadable.
+//
+// Beats:
+//   1. Resolve primary config file path (~/.openooda/theme.oot).
+//   2. Probe environment variables for explicit theme overrides.
+//   3. Read and parse configuration file from disk.
+//   4. Evaluate NO_COLOR and terminal capabilities for output degradation.
+
+import "std/fs/file/path.oo";
+import "std/fs/file/file_reader.oo";
+import "std/fs/process/env.oo";
+import "config_reader.oo";
+
+pub fn env_lookup(env: &EnvCap, name: String) -> String {
+    let r: Result[String, String] = env_get(env, name);
+    return match r { Ok(s) => s, Err(_) => "" };
+}
+
+pub fn get_theme_config_path(env: &EnvCap) -> String {
+    let ooda_home: String = env_lookup(env, "OODA_HOME");
+    if ooda_home != "" {
+        return path_join(path_join(ooda_home, ".openooda"), "theme.oot");
+    }
+    let home: String = env_lookup(env, "HOME");
+    if home != "" {
+        return path_join(path_join(home, ".openooda"), "theme.oot");
+    }
+    return "theme.oot";
+}
+
+pub fn resolve_active_theme(fs_r: &FsReadCap, env: &EnvCap) -> String {
+    let env_theme: String = env_lookup(env, "OODA_THEME");
+    if env_theme != "" { return env_theme; }
+
+    let path: String = get_theme_config_path(env);
+    if path_exists(fs_r, path) {
+        let open_res: Result[FileReader, String] = file_reader_open(fs_r, path);
+        let reader: FileReader = match open_res { Ok(r) => r, Err(_) => return "minimax" };
+        let read_res: Result[String, String] = file_reader_read_all(fs_r, reader);
+        let content: String = match read_res { Ok(s) => s, Err(_) => "" };
+        let parsed: String = parse_theme_from_oot(content);
+        if parsed != "" { return parsed; }
+    }
+    return "minimax";
+}
+
+pub fn is_color_enabled(env: &EnvCap, cli_no_color: Bool) -> Bool {
+    if cli_no_color { return false; }
+    let no_col: String = env_lookup(env, "OODA_NO_COLOR");
+    if no_col != "" { return false; }
+    let std_no_col: String = env_lookup(env, "NO_COLOR");
+    if std_no_col != "" { return false; }
+    let term: String = env_lookup(env, "TERM");
+    if term == "dumb" { return false; }
+    return true;
+}
+
+pub fn is_truecolor_enabled(env: &EnvCap) -> Bool {
+    let ct: String = env_lookup(env, "COLORTERM");
+    if ct == "truecolor" || ct == "24bit" { return true; }
+    return true;
+}

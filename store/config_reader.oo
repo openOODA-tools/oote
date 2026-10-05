@@ -1,0 +1,69 @@
+// # Config Reader - Theme Configuration Parser
+//
+// Logline: Parses key-value bindings from openOODA .oot configuration documents.
+//
+// Setup: Pure string scanning. Operates with zero ambient authority.
+//
+// Beats:
+//   1. Scan lines for key-value pair assignments.
+//   2. Strip optional quotation marks and trailing whitespace.
+//   3. Extract theme name and rendering mode from config text.
+
+pub fn parse_oot_val(line: String, key: String) -> String {
+    let trimmed: String = str_trim(line);
+    if !str_starts_with(trimmed, key) { return ""; }
+    let rest: String = str_trim(str_slice(trimmed, chars_len(key), chars_len(trimmed)));
+    if !str_starts_with(rest, "=") { return ""; }
+    let mut val: String = str_trim(str_slice(rest, 1, chars_len(rest)));
+    if str_starts_with(val, "\"") && str_ends_with(val, "\"") {
+        let n: Int = chars_len(val);
+        if n >= 2 {
+            val = str_slice(val, 1, n - 1);
+        }
+    }
+    return val;
+}
+
+pub fn parse_theme_from_oot(content: String) -> String {
+    let n: Int = chars_len(content);
+    let mut cur: String = "";
+    let mut i: Int = 0;
+    while i < n {
+        let c: String = char_at(content, i);
+        if c == "\n" {
+            let v: String = parse_oot_val(cur, "theme");
+            if v != "" { return v; }
+            cur = "";
+        } else if c != "\r" {
+            cur = cur + c;
+        }
+        i = i + 1;
+    }
+    if cur != "" {
+        let v: String = parse_oot_val(cur, "theme");
+        if v != "" { return v; }
+    }
+    return "";
+}
+
+pub fn parse_mode_from_oot(content: String) -> String {
+    let n: Int = chars_len(content);
+    let mut cur: String = "";
+    let mut i: Int = 0;
+    while i < n {
+        let c: String = char_at(content, i);
+        if c == "\n" {
+            let v: String = parse_oot_val(cur, "mode");
+            if v != "" { return v; }
+            cur = "";
+        } else if c != "\r" {
+            cur = cur + c;
+        }
+        i = i + 1;
+    }
+    if cur != "" {
+        let v: String = parse_oot_val(cur, "mode");
+        if v != "" { return v; }
+    }
+    return "";
+}

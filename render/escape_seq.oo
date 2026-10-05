@@ -1,0 +1,48 @@
+// # Escape Sequence Builder - ANSI SGR Primitives
+//
+// Logline: Generates ECMA-48 / ANSI terminal escape sequences safely without literal byte traps.
+//
+// Setup: Pure string generation using explicit byte construction for ESC (byte 27).
+//
+// Beats:
+//   1. Build safe ESC byte from ASCII code 27.
+//   2. Generate 24-bit TrueColor foreground and background SGR sequences.
+//   3. Generate standard 16-color ANSI foreground and background codes.
+//   4. Generate typographic attribute sequences (bold, dim, underline, reverse).
+
+pub fn ansi_esc() -> String {
+    return bytes_to_str(bytes_push(bytes_new(), 27));
+}
+
+pub fn ansi_reset() -> String {
+    return ansi_esc() + "[0m";
+}
+
+pub fn ansi_fg_truecolor(r: Int, g: Int, b: Int) -> String {
+    return ansi_esc() + "[38;2;" + r.to_string() + ";" + g.to_string() + ";" + b.to_string() + "m";
+}
+
+pub fn ansi_bg_truecolor(r: Int, g: Int, b: Int) -> String {
+    return ansi_esc() + "[48;2;" + r.to_string() + ";" + g.to_string() + ";" + b.to_string() + "m";
+}
+
+pub fn ansi_fg_16(code: Int) -> String {
+    if code <= 0 { return ""; }
+    return ansi_esc() + "[" + code.to_string() + "m";
+}
+
+pub fn ansi_bg_16(code: Int) -> String {
+    if code <= 0 { return ""; }
+    let bg_code: Int = code + 10;
+    return ansi_esc() + "[" + bg_code.to_string() + "m";
+}
+
+pub fn ansi_attr(bold: Bool, dim: Bool, underline: Bool, reverse: Bool) -> String {
+    let mut out: String = "";
+    let e: String = ansi_esc();
+    if bold { out = out + e + "[1m"; }
+    if dim { out = out + e + "[2m"; }
+    if underline { out = out + e + "[4m"; }
+    if reverse { out = out + e + "[7m"; }
+    return out;
+}

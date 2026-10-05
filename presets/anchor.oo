@@ -1,0 +1,10 @@
+// # Presets Subsystem Anchor - Catalog Re-Export
+//
+// Logline: Top-level catalog export for all built-in curated themes.
+//
+// Setup: Pure shim. Re-exports preset registry and built-in theme definitions.
+//
+// Beats:
+//   1. Re-export theme registry catalog.
+
+import "preset_registry.oo";
