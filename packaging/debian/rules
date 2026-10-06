@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_build:
+	make build
+
+override_dh_auto_install:
+	mkdir -p debian/oote/usr/bin
+	install -m 0755 dist/oote debian/oote/usr/bin/oote

@@ -157,6 +157,30 @@ test: $(BIN)
 	@./$(BIN) set auto > /dev/null && echo "PASS: set auto"
 	@echo "ALL TESTS PASSED"
 
+# --- Packaging targets --------------------------------------------------------
+
+package-deb: $(BIN)
+	@mkdir -p dist/deb-root/DEBIAN dist/deb-root/usr/bin
+	@sed "s/^Version:.*/Version: $(VERSION)-1/" packaging/debian/control.binary > dist/deb-root/DEBIAN/control
+	@cp $(BIN) dist/deb-root/usr/bin/oote
+	@chmod 0755 dist/deb-root/usr/bin/oote
+	@dpkg-deb --build --root-owner-group dist/deb-root dist/oote_$(VERSION)-1_amd64.deb
+	@rm -rf dist/deb-root
+	@echo "built dist/oote_$(VERSION)-1_amd64.deb"
+
+package-rpm: $(BIN)
+	@mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS ~/rpmbuild/RPMS
+	@cp $(BIN) ~/rpmbuild/SOURCES/oote-linux-x86_64
+	@sed "s/^Version:.*/Version: $(VERSION)/" packaging/oote.spec > ~/rpmbuild/SPECS/oote.spec
+	@rpmbuild -bb ~/rpmbuild/SPECS/oote.spec
+	@cp ~/rpmbuild/RPMS/x86_64/oote-$(VERSION)*.rpm dist/
+	@echo "built dist RPM package"
+
+package-arch: $(BIN)
+	@test -f packaging/arch/PKGBUILD && echo "PASS: packaging/arch/PKGBUILD exists"
+
+package: package-deb package-rpm package-arch
+
 clean:
 	@rm -rf dist .ooda-cache
 	@echo "cleaned"

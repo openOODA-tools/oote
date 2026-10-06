@@ -1,0 +1,14 @@
+Source: oote
+Section: utils
+Priority: optional
+Maintainer: openOODA-tools <ops@openooda.org>
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13)
+
+Package: oote
+Architecture: amd64
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Sovereign unified theming engine for openOODA
+ oote is the sovereign unified theming and color styling engine for the
+ openOODA ecosystem. It provides 25 seasonal and monthly themes, dual
+ light/dark modes, custom border styles, and expressive ASCII mascots.
