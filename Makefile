@@ -191,9 +191,17 @@ package-rpm: $(BIN)
 	@echo "built dist RPM package"
 
 package-arch: $(BIN)
+	@mkdir -p dist/arch-pkg/usr/bin
+	@cp $(BIN) dist/arch-pkg/usr/bin/oote
+	@chmod 0755 dist/arch-pkg/usr/bin/oote
+	@cp uninstall.sh dist/arch-pkg/usr/bin/oote-uninstall
+	@chmod 0755 dist/arch-pkg/usr/bin/oote-uninstall
+	@printf "pkgname = oote\npkgbase = oote\npkgver = $(VERSION)-1\npkgdesc = Sovereign unified theming and color styling engine for openOODA\nurl = https://github.com/openOODA-tools/oote\nbuilddate = $$(date +%s)\npackager = openOODA-tools <ops@openooda.org>\nsize = $$(stat -c %s $(BIN))\narch = x86_64\nlicense = Apache-2.0\ndepend = glibc\nprovides = oote\n" > dist/arch-pkg/.PKGINFO
+	@tar --zstd -cf dist/oote-$(VERSION)-1-x86_64.pkg.tar.zst -C dist/arch-pkg .PKGINFO usr
+	@rm -rf dist/arch-pkg
 	@bash -n packaging/arch/PKGBUILD
 	@cp packaging/arch/PKGBUILD packaging/PKGBUILD
-	@echo "validated packaging/arch/PKGBUILD and packaging/PKGBUILD"
+	@echo "built dist/oote-$(VERSION)-1-x86_64.pkg.tar.zst and validated PKGBUILD"
 
 package: package-deb package-rpm package-arch
 
