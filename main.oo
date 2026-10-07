@@ -23,7 +23,7 @@ import "store/theme_config.oo";
 import "store/config_writer.oo";
 
 fn cmd_help() -> Int {
-    print("oote - openOODA theming engine (v0.1.0)\n\n" +
+    print("oote - openOODA theming engine (v0.1.1)\n\n" +
           "Usage: oote <command> [arguments]\n\n" +
           "Commands:\n" +
           "  list                       List all registered themes\n" +
@@ -231,7 +231,7 @@ pub fn main(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, proc_cap: &Proces
 
     if verb == "--help" || verb == "-h" || verb == "help" { return Ok(cmd_help()); }
     if verb == "--version" || verb == "-v" || verb == "version" {
-        print("oote 0.1.0 (openOODA sovereign theme engine)\n");
+        print("oote 0.1.1 (openOODA sovereign theme engine)\n");
         return Ok(0);
     }
     if verb == "list" { return Ok(cmd_list(fs_r, env, color_on, tc_on)); }

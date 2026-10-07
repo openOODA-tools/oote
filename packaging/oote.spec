@@ -1,5 +1,5 @@
 Name:           oote
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        Sovereign unified theming engine for openOODA
 License:        Apache-2.0
@@ -27,5 +27,7 @@ install -m 0755 %{SOURCE1} %{buildroot}/usr/bin/oote-uninstall
 /usr/bin/oote-uninstall
 
 %changelog
+* Tue Oct 06 2026 openOODA-tools <ops@openooda.org> - 0.1.1-1
+- Align AGENTS.md, companion uninstaller (oote-uninstall), packaging parity across DNF, APT, and Arch
 * Tue Oct 06 2026 openOODA-tools <ops@openooda.org> - 0.1.0-1
 - Sovereign release: 12 monthly themes, holiday themes, light/dark dual modes, ASCII mascots & emotions, border styles, and global sync.

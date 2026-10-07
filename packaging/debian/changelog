@@ -1,3 +1,9 @@
+oote (0.1.1-1) unstable; urgency=medium
+
+  * Align AGENTS.md, companion uninstaller (oote-uninstall), packaging parity across DNF, APT, and Arch.
+
+ -- openOODA-tools <ops@openooda.org>  Tue, 06 Oct 2026 19:00:00 -1000
+
 oote (0.1.0-1) unstable; urgency=medium
 
   * Initial sovereign release: 12 monthly themes, holiday themes,

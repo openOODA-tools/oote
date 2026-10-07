@@ -4,46 +4,29 @@ This document is the **single canonical source of truth** for all code, architec
 
 ---
 
-## 1. What oote Is
+## 1. The Page Rule (Code Layout & Sizing)
 
-A sovereign, unified theming and color styling engine for the openOODA ecosystem. It establishes a common semantic token taxonomy across all terminal tools (`oosh`, `oodiff`, `oogrep`, `oofind`, `oojq`, `ootail`, and `tui`), provides ANSI SGR sequence generation with graceful terminal capability degradation, and manages system-wide theme persistence in `~/.openooda/theme.oot`.
+A **page** is one committed `.oo` or `.oot` file. Every page holds one idea, fits in one head, and carries its own weight. This rule is enforced by automated verification under `make verify`: red pages fail the build.
 
-It serves a dual posture:
-- **Ecosystem Library**: An importable `.oo` anchor library for sovereign tools.
-- **CLI Driver**: A standalone terminal binary for listing, previewing, and setting themes.
+### Hard Sizing Invariants
+- **16–256 Lines**: Every committed source file must be between **16 and 256 lines**, counted as exact line breaks (blank lines and comments count).
+- **Shim Exemption (Floor Only)**: A file is a shim when every non-comment line is an import or re-export (`import "..."`). Shims skip the 16-line floor. The **256-line ceiling still strictly applies**.
+- **Directory Density ($\le 8$ files)**: At most **8 `.oo` files per directory**, tests included. Crowded directories must split into functional subdirectories grouped by domain.
+- **Banned File Names (Name the function, not the drawer)**:
+  `util.oo`, `utils.oo`, `helper.oo`, `helpers.oo`, `common.oo`, `misc.oo`, `shared.oo`, `base.oo`, `core.oo`.
 
----
-
-## 2. The Four Domains
-
-Work lands in exactly one domain at a time. Each domain owns a specific responsibility:
-
-| Domain | Responsibility | Does NOT Do |
-|---|---|---|
-| `spec/` | Color representations, style models, semantic token definitions | Generate terminal escapes or touch disk |
-| `presets/` | Curated built-in themes (minimax, 1982, nord, dracula, etc.) | Parse CLI flags or evaluate terminal capabilities |
-| `render/` | ANSI escape construction, capability degradation, preview formatting | Define theme palettes or manage configuration |
-| `store/` | Config file reading, env resolution, atomic theme setting | Format terminal strings or define colors |
+### Splitting, Folding, and Naming
+- **Over 256 lines**: Split along functional boundaries into a new subdirectory with an `anchor.oo` shim. One page = one verb or one wholly owned noun.
+- **Under 16 lines (and not a shim)**: Fold into its closest sibling or caller. Never pad lines with artificial whitespace or comments to reach 16.
+- **Action pages lead with a verb**: `render_preview.oo`, `resolve_calendar.oo`, `store_config.oo`.
+- **State pages name what they own**: `theme_spec.oo`, `palette.oo`.
+- **Boundary pages speak trust verbs**: `verify_token.oo`, `admit_theme.oo`, `enforce_degradation.oo`.
 
 ---
 
-## 3. The Page Rule (Code Layout & Sizing)
+## 2. The 4-Element Academy Header (Mandatory on Every Page)
 
-A **page** is one committed `.oo` or `.oot` file. Automated verification gates enforce these rules under `make verify`:
-
-- **16–256 Lines**: Every committed source file must be between **16 and 256 lines**, counted as exact line breaks.
-- **Shim Exemption (Floor Only)**: A file is a shim when every non-comment line is an import (`import "..."`). Shims skip the 16-line floor. The **256-line ceiling still applies without exception**.
-- **Directory Density ($\le 8$ files)**: At most **8 `.oo` / `.oot` files per directory**, tests included.
-- **Function Caps**: At most **8 functions per page**, and at most **40 lines per function**.
-- **Banned File Names**: Never name a page `util.oo`, `utils.oo`, `helper.oo`, `helpers.oo`, `common.oo`, `misc.oo`, `shared.oo`, `base.oo`, or `core.oo`. Name the verb or wholly owned noun.
-- **Imports**: All imports must be relative string literals (e.g. `import "spec/color_model.oo";`). Never use `::` namespaces.
-- **File Law**: Zero non-native config files (`.json`, `.yaml`, `.toml`, `.py`, `.js` are strictly banned).
-
----
-
-## 4. The 4-Element Academy Header (Mandatory on Every Page)
-
-Every committed `.oo` file must begin with the standard 4-element Academy docstring within the first 7 lines:
+Every committed `.oo` file must begin with the standard 4-element Academy docstring within its first 7 lines:
 
 ```oo
 // # Component Name - Subtitle
@@ -58,24 +41,71 @@ Every committed `.oo` file must begin with the standard 4-element Academy docstr
 //   3. Final phase / exit state.
 ```
 
+- **ASD-STE100 Compliance**: Clear, concise English. No filler or ambiguous verbs.
+- **Imports**: All imports must be relative string literals (e.g. `import "render/render_card.oo";`). Never use `::` namespaces.
+
 ---
 
-## 5. Capability Discipline & Security Model
+## 3. openOODA Capability & Zero-Trust Discipline
 
 `oote` operates strictly on the Object-Capability (OCap) security model:
 
-- **Zero Ambient Authority**: Rendering and palette evaluation are pure functions requiring zero capabilities.
-- **Explicit Storage Capabilities**: Reading configuration requires `&FsReadCap` and `&EnvCap`. Modifying theme state requires `&FsWriteCap`.
-- **Subprocess Safety**: Never spawn subshells or invoke child processes.
+### Unforgeable Capability Tokens
+- **Zero Ambient Authority**: Privileged operations (reading and writing user theme configurations, querying system time) require explicit, unforgeable capability tokens passed as arguments (`&FsReadCap`, `&FsWriteCap`, `&TimeCap`, `&EnvCap`).
+- **Zero Network Egress**: Theme rendering and configuration management requires zero network access. Absence of `&NetCap` in `main` is an architectural guarantee.
+- **Subprocess Safety**: Never invoke `/bin/sh -c` or `/bin/bash -c`. Direct binary execution must use explicit argv arrays via `ProcessCap`. Clean environment variables of child processes.
+- **Graceful Capability Degradation**: Automatically emits 24-bit TrueColor, degrades to 256 or 16-color ANSI, and suppresses all ANSI escapes under `NO_COLOR`, `OODA_NO_COLOR`, or `TERM=dumb`.
 
 ---
 
-## 6. Verification Gate
+## 4. Unified Theming Engine Architecture
 
-Before any commit or release, run:
+`oote` is the sovereign single source of truth for theming across openOODA:
 
-```bash
-make verify
-```
+- **39-Token Semantic Taxonomy**: UI chrome, status indicators, syntax highlighting, diffs, search hits, shell prompts, and logs.
+- **25 Sovereign Presets**: 12 monthly themes, 7 seasonal holiday themes, and 6 classic base themes.
+- **Autonomous Calendar & Circadian Engine**: Auto-activates seasonal themes during holiday dates and adjusts to circadian lighting (light mode during day, dark mode at night).
+- **Expressive ASCII Mascots & Micro-Glyphs**: 5 emotional states (`idle`, `happy`, `sad`, `alert`, `sleepy`).
+- **Global Synchronization**: Persists system-wide choices to `~/.openooda/theme.oot` consumed by `oosh`, `oodiff`, `oogrep`, `oofind`, `oojq`, `ootail`, and `tui`.
 
-Runs `line-cap`, `file-law`, `academy`, `density`, and `check` (`oodac check`). All must pass cleanly.
+---
+
+## 5. Native systemd Citizenship & Linux Integration
+
+This server follows a pure systemd-native architectural pattern:
+
+1. **System Services & Unit Placement**: Services managed in `/etc/systemd/system/`. Prefer drop-in overrides (`/etc/systemd/system/<unit>.service.d/*.conf`).
+2. **Declarative State & Provisioning**: Accounts declared via `systemd-sysusers` in `/etc/sysusers.d/*.conf`; directory lifecycle via `systemd-tmpfiles` in `/etc/tmpfiles.d/*.conf`.
+3. **Service Confinement & Hardening**: Use native sandboxing (`ProtectSystem=`, `ProtectHome=`, `PrivateTmp=`, `NoNewPrivileges=`).
+4. **Logging & Schedulers**: Logging handled exclusively by `systemd-journald`. Scheduled tasks executed via `systemd.timer` units rather than legacy cron.
+5. **Standard System Directories**: Use `$RUNTIME_DIRECTORY` (`/run/openooda`), `$STATE_DIRECTORY` (`/var/lib/openooda`), `$CONFIGURATION_DIRECTORY` (`/etc/openooda`).
+6. **Standard Exit Codes**: `0` on clean execution, `1` on invalid arguments or missing presets.
+
+---
+
+## 6. Domain Architecture & Responsibilities
+
+Work lands in exactly one domain at a time:
+
+| Domain | Responsibility | Does NOT Do |
+|---|---|---|
+| `spec/` | Color models, style models, 39 semantic token definitions | Generate ANSI escapes or touch disk |
+| `presets/` | 25 built-in theme definitions (monthly, holidays, classics) | Parse CLI flags or evaluate terminal caps |
+| `mascot/` | ASCII mascots and prompt micro-glyphs across 5 emotional states | Write config or manage state |
+| `render/` | ANSI escape construction, capability degradation, preview formatting | Define theme palettes or manage storage |
+| `store/` | Read, parse, and persist settings in `~/.openooda/theme.oot` | Format ANSI escapes or draw borders |
+
+---
+
+## 7. Verification & QA Gate
+
+Before any commit or release is certified, the entire codebase must pass the automated verification gate:
+
+1. **`make line-cap`**: Hard verification that 100% of `.oo` and `.oot` files are between 16 and 256 lines (shims exempt).
+2. **`make file-law`**: Verification that no forbidden file extensions or stray documents are committed.
+3. **`make academy`**: Verification that every source file contains the complete 4-element Academy header in its first 7 lines.
+4. **`make density`**: Verification that no directory holds more than 8 pages.
+5. **`make check`**: Full syntax and semantic verification via `oodac check` across every `.oo` page.
+6. **`make verify`**: Orchestrates all verification checks. Red pages fail the build.
+7. **`make test`**: Theme resolution, preview formatting, mascot generation, and config store tests.
+8. **Double-Run Determinism**: All verification runs execute twice sequentially in fresh processes ($Run_1 == Run_2$).

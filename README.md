@@ -33,7 +33,7 @@ curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash
 curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --dnf
 
 # Or direct RPM install from GitHub Releases
-sudo dnf install https://github.com/openOODA-tools/oote/releases/download/v0.1.0/oote-0.1.0-1.x86_64.rpm
+sudo dnf install https://github.com/openOODA-tools/oote/releases/download/v0.1.1/oote-0.1.1-1.x86_64.rpm
 ```
 
 ### DEB / APT (Debian / Ubuntu / Mint / Pop!_OS)
@@ -42,8 +42,8 @@ sudo dnf install https://github.com/openOODA-tools/oote/releases/download/v0.1.0
 curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --deb
 
 # Or manual download from GitHub Releases
-curl -fsSL -O https://github.com/openOODA-tools/oote/releases/download/v0.1.0/oote_0.1.0-1_amd64.deb
-sudo dpkg -i oote_0.1.0-1_amd64.deb
+curl -fsSL -O https://github.com/openOODA-tools/oote/releases/download/v0.1.1/oote_0.1.1-1_amd64.deb
+sudo dpkg -i oote_0.1.1-1_amd64.deb
 ```
 
 ### PKGBUILD / Pacman (Arch Linux / Manjaro)

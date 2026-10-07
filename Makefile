@@ -15,7 +15,7 @@ OODA_COMPILER ?= $(firstword $(wildcard $(HOME)/.openooda/bin/oodac $(CURDIR)/..
 OODACODEX ?= $(HOME)/.openooda/northstar.oot
 OO_LIST_AMBIENT_QUOTA ?= 8589934592
 BIN := dist/oote
-VERSION ?= 0.1.0
+VERSION ?= 0.1.1
 PREFIX ?= $(HOME)/.openooda/bin
 
 SRC := $(wildcard *.oo) $(wildcard */*.oo) $(wildcard */*/*.oo)
@@ -191,7 +191,9 @@ package-rpm: $(BIN)
 	@echo "built dist RPM package"
 
 package-arch: $(BIN)
-	@test -f packaging/arch/PKGBUILD && echo "PASS: packaging/arch/PKGBUILD exists"
+	@bash -n packaging/arch/PKGBUILD
+	@cp packaging/arch/PKGBUILD packaging/PKGBUILD
+	@echo "validated packaging/arch/PKGBUILD and packaging/PKGBUILD"
 
 package: package-deb package-rpm package-arch
 
