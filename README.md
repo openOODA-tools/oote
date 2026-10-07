@@ -64,16 +64,35 @@ curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --dry-r
 
 # Install to custom directory
 curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --prefix ~/.local/bin
-
-# Clean uninstall
-curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --uninstall
 ```
 
-### Build from Source
+### Clean Uninstallation
+`oote` includes a sovereign, capability-clean uninstaller that removes binary files, package manager installations (`deb`/`rpm`/`arch`), helper scripts, and optionally purges configuration files:
+
+```bash
+# 1. Via installed CLI helper (if already installed in PATH)
+oote-uninstall
+oote-uninstall --purge   # also removes ~/.openooda/theme.oot and cache
+
+# 2. Via dedicated web uninstaller
+curl -fsSL https://openooda-tools.github.io/oote/uninstall.sh | bash
+curl -fsSL https://openooda-tools.github.io/oote/uninstall.sh | bash -s -- --purge
+
+# 3. Via the universal installer script
+curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --uninstall
+curl -fsSL https://openooda-tools.github.io/oote/install.sh | bash -s -- --uninstall --purge
+
+# 4. Preview uninstallation without touching disk
+curl -fsSL https://openooda-tools.github.io/oote/uninstall.sh | bash -s -- --dry-run
+```
+
+### Build & Manage from Source
 ```bash
 make verify
 make build
 make test
+make install      # installs to PREFIX (default ~/.openooda/bin)
+make uninstall    # cleanly uninstalls (use PURGE=1 to remove config)
 ```
 The compiled binary will be placed at `dist/oote`.
 

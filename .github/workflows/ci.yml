@@ -69,10 +69,17 @@ jobs:
           /usr/bin/oote glyph minimax idle
           /usr/bin/oote get status_success
 
-      - name: Verify PKGBUILD and installer
+      - name: Verify PKGBUILD, installer, and uninstaller
         working-directory: ${{ github.workspace }}/oote
         run: |
           test -f packaging/arch/PKGBUILD
           grep -q "pkgname=oote" packaging/arch/PKGBUILD
           bash install.sh --help
           bash install.sh --dry-run
+          bash install.sh --uninstall --dry-run
+          bash install.sh --uninstall --dry-run --purge
+          bash uninstall.sh --help
+          bash uninstall.sh --dry-run
+          bash uninstall.sh --dry-run --purge
+          /usr/bin/oote-uninstall --help
+          /usr/bin/oote-uninstall --dry-run

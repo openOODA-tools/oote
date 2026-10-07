@@ -16,10 +16,11 @@ OODACODEX ?= $(HOME)/.openooda/northstar.oot
 OO_LIST_AMBIENT_QUOTA ?= 8589934592
 BIN := dist/oote
 VERSION ?= 0.1.0
+PREFIX ?= $(HOME)/.openooda/bin
 
 SRC := $(wildcard *.oo) $(wildcard */*.oo) $(wildcard */*/*.oo)
 
-.PHONY: all build check line-cap file-law academy density verify test clean
+.PHONY: all build check line-cap file-law academy density verify test install uninstall clean
 
 all: verify build test
 
@@ -30,6 +31,17 @@ $(BIN): $(SRC)
 	OO_LIST_AMBIENT_QUOTA=$(OO_LIST_AMBIENT_QUOTA) OODACODEX=$(OODACODEX) OODA_COMPILER=$(OODA_COMPILER) OODA_NO_JAIL=1 $(OODA_COMPILER) build main.oo -o $(BIN)
 	@chmod +x $(BIN)
 	@echo "built $(BIN)"
+
+install: $(BIN)
+	@mkdir -p $(PREFIX)
+	@cp $(BIN) $(PREFIX)/oote
+	@chmod 0755 $(PREFIX)/oote
+	@cp uninstall.sh $(PREFIX)/oote-uninstall
+	@chmod 0755 $(PREFIX)/oote-uninstall
+	@echo "installed oote and oote-uninstall to $(PREFIX)"
+
+uninstall:
+	@sh uninstall.sh $(if $(PURGE),--purge,)
 
 # --- Verification gate ---------------------------------------------------------
 
@@ -163,7 +175,8 @@ package-deb: $(BIN)
 	@mkdir -p dist/deb-root/DEBIAN dist/deb-root/usr/bin
 	@sed "s/^Version:.*/Version: $(VERSION)-1/" packaging/debian/control.binary > dist/deb-root/DEBIAN/control
 	@cp $(BIN) dist/deb-root/usr/bin/oote
-	@chmod 0755 dist/deb-root/usr/bin/oote
+	@cp uninstall.sh dist/deb-root/usr/bin/oote-uninstall
+	@chmod 0755 dist/deb-root/usr/bin/oote dist/deb-root/usr/bin/oote-uninstall
 	@dpkg-deb --build --root-owner-group dist/deb-root dist/oote_$(VERSION)-1_amd64.deb
 	@rm -rf dist/deb-root
 	@echo "built dist/oote_$(VERSION)-1_amd64.deb"
@@ -171,6 +184,7 @@ package-deb: $(BIN)
 package-rpm: $(BIN)
 	@mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS ~/rpmbuild/RPMS
 	@cp $(BIN) ~/rpmbuild/SOURCES/oote-linux-x86_64
+	@cp uninstall.sh ~/rpmbuild/SOURCES/oote-uninstall
 	@sed "s/^Version:.*/Version: $(VERSION)/" packaging/oote.spec > ~/rpmbuild/SPECS/oote.spec
 	@rpmbuild -bb ~/rpmbuild/SPECS/oote.spec
 	@cp ~/rpmbuild/RPMS/x86_64/oote-$(VERSION)*.rpm dist/

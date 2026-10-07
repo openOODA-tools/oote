@@ -5,6 +5,7 @@ Summary:        Sovereign unified theming engine for openOODA
 License:        Apache-2.0
 URL:            https://github.com/openOODA-tools/oote
 Source0:        oote-linux-x86_64
+Source1:        oote-uninstall
 BuildArch:      x86_64
 Requires:       glibc
 
@@ -19,9 +20,11 @@ and global configuration persistence.
 %install
 mkdir -p %{buildroot}/usr/bin
 install -m 0755 %{SOURCE0} %{buildroot}/usr/bin/oote
+install -m 0755 %{SOURCE1} %{buildroot}/usr/bin/oote-uninstall
 
 %files
 /usr/bin/oote
+/usr/bin/oote-uninstall
 
 %changelog
 * Tue Oct 06 2026 openOODA-tools <ops@openooda.org> - 0.1.0-1

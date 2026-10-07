@@ -101,3 +101,4 @@ jobs:
             oote/dist/*.rpm
             oote/dist/packages.sha256
             oote/packaging/arch/PKGBUILD
+            oote/uninstall.sh
