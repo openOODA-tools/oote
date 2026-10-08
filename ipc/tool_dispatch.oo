@@ -1,0 +1,146 @@
+// # MCP Tool Dispatch - Theming and Mascot Surface
+//
+// Logline: Dispatches Model Context Protocol tool requests for theme discovery, color tokens, and mascots.
+//
+// Setup: Requires FsReadCap and EnvCap. Zero ambient authority.
+//
+// Beats:
+//   1. Expose tool definitions: list_themes, get_theme, resolve_color, render_mascot.
+//   2. Parse arguments and handle fail-closed validation for unknown themes or tokens.
+//   3. Construct serialized JSON responses with content structures.
+//
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+import "spec/token_names.oo";
+import "presets/preset_registry.oo";
+import "mascot/mascot_model.oo";
+import "mascot/mascot_registry.oo";
+import "store/theme_config.oo";
+import "json_field.oo";
+
+pub fn build_error(id: String, code: Int, msg: String) -> String {
+    let safe_id: String = if chars_len(id) == 0 { "null" } else { id };
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + safe_id + ",\"error\":{\"code\":" + code.to_string() + ",\"message\":\"" + json_escape(msg) + "\"}}";
+}
+
+pub fn build_tool_result(id: String, text: String) -> String {
+    let safe_id: String = if chars_len(id) == 0 { "null" } else { id };
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + safe_id + ",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"" + json_escape(text) + "\"}]}}";
+}
+
+pub fn tools_list_payload(id: String) -> String {
+    let t1: String = "{\"name\":\"list_themes\",\"description\":\"List all available openOODA themes with metadata and descriptions\",\"inputSchema\":{\"type\":\"object\",\"properties\":{}}}";
+    let t2: String = "{\"name\":\"get_theme\",\"description\":\"Retrieve theme color definitions and metadata\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"theme\":{\"type\":\"string\",\"description\":\"Theme name (e.g. minimax, dracula, nord)\"},\"mode\":{\"type\":\"string\",\"description\":\"Color mode: dark or light\"}}}}";
+    let t3: String = "{\"name\":\"resolve_color\",\"description\":\"Resolve semantic token to ANSI and RGB values\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"token\":{\"type\":\"string\",\"description\":\"Semantic token name (e.g. ui_accent, syntax_keyword)\"},\"theme\":{\"type\":\"string\",\"description\":\"Theme name\"},\"mode\":{\"type\":\"string\",\"description\":\"Color mode: dark or light\"}},\"required\":[\"token\"]}}";
+    let t4: String = "{\"name\":\"render_mascot\",\"description\":\"Render theme ASCII mascot art\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"theme\":{\"type\":\"string\",\"description\":\"Theme name\"},\"emotion\":{\"type\":\"string\",\"description\":\"Mascot emotion: idle, happy, sad, alert, sleepy\"}}}}";
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + id + ",\"result\":{\"tools\":[" + t1 + "," + t2 + "," + t3 + "," + t4 + "]}}";
+}
+
+fn hex_format_byte(b: Int) -> String {
+    let hi: Int = b / 16;
+    let lo: Int = b % 16;
+    let digits: String = "0123456789abcdef";
+    return char_at(digits, hi) + char_at(digits, lo);
+}
+
+fn color_to_hex_str(c: Color) -> String {
+    return "#" + hex_format_byte(c.r) + hex_format_byte(c.g) + hex_format_byte(c.b);
+}
+
+fn dispatch_list_themes(id: String) -> String {
+    let names: String = theme_list();
+    let mut out: String = "[";
+    let mut rest: String = names;
+    let mut first: Bool = true;
+    while chars_len(rest) > 0 {
+        let trimmed: String = str_trim(rest);
+        if trimmed == "" { break; }
+        let mut sp_idx: Int = -1;
+        let n: Int = chars_len(trimmed);
+        let mut i: Int = 0;
+        while i < n {
+            if char_at(trimmed, i) == " " { sp_idx = i; break; }
+            i = i + 1;
+        }
+        let item: String = if sp_idx > 0 { str_slice(trimmed, 0, sp_idx) } else { trimmed };
+        rest = if sp_idx > 0 { str_slice(trimmed, sp_idx + 1, n) } else { "" };
+        let meta: ThemeMeta = theme_get_meta(item);
+        if !first { out = out + ","; }
+        first = false;
+        out = out + "{\"name\":\"" + item + "\",\"description\":\"" + json_escape(meta.description) + "\",\"author\":\"" + json_escape(meta.author) + "\"}";
+    }
+    out = out + "]";
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + id + ",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"" + json_escape(out) + "\"}]}}";
+}
+
+fn dispatch_get_theme(fs_r: &FsReadCap, env: &EnvCap, id: String, args: String) -> String {
+    let mut tname: String = json_field_string(args, "theme");
+    if tname == "" || tname == "auto" { tname = resolve_active_theme(fs_r, env); }
+    if !theme_is_valid(tname) {
+        return build_error(id, -32602, "unknown theme: " + tname);
+    }
+    let mut dark: Bool = resolve_active_mode(fs_r, env);
+    let mstr: String = json_field_string(args, "mode");
+    if mstr == "dark" { dark = true; }
+    else if mstr == "light" { dark = false; }
+
+    let meta: ThemeMeta = theme_get_meta(tname);
+    let acc: Color = theme_get_color_mode(tname, "ui_accent", dark);
+    let bg: Color = theme_get_color_mode(tname, "ui_bg", dark);
+    let fg: Color = theme_get_color_mode(tname, "ui_fg", dark);
+    let kw: Color = theme_get_color_mode(tname, "syntax_keyword", dark);
+    let st: Color = theme_get_color_mode(tname, "syntax_string", dark);
+    let ok_c: Color = theme_get_color_mode(tname, "status_success", dark);
+    let err_c: Color = theme_get_color_mode(tname, "status_error", dark);
+
+    let res: String = "{\"theme\":\"" + tname + "\",\"mode\":\"" + (if dark { "dark" } else { "light" }) + "\",\"author\":\"" + json_escape(meta.author) + "\",\"tokens\":{\"ui_accent\":\"" + color_to_hex_str(acc) + "\",\"ui_bg\":\"" + color_to_hex_str(bg) + "\",\"ui_fg\":\"" + color_to_hex_str(fg) + "\",\"syntax_keyword\":\"" + color_to_hex_str(kw) + "\",\"syntax_string\":\"" + color_to_hex_str(st) + "\",\"status_success\":\"" + color_to_hex_str(ok_c) + "\",\"status_error\":\"" + color_to_hex_str(err_c) + "\"}}";
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + id + ",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"" + json_escape(res) + "\"}]}}";
+}
+
+fn dispatch_resolve_color(fs_r: &FsReadCap, env: &EnvCap, id: String, args: String) -> String {
+    let tok: String = json_field_string(args, "token");
+    if tok == "" { return build_error(id, -32602, "missing required parameter: token"); }
+    if !is_valid_token(tok) { return build_error(id, -32602, "unknown token: " + tok); }
+
+    let mut tname: String = json_field_string(args, "theme");
+    if tname == "" || tname == "auto" { tname = resolve_active_theme(fs_r, env); }
+    if !theme_is_valid(tname) { return build_error(id, -32602, "unknown theme: " + tname); }
+
+    let mut dark: Bool = resolve_active_mode(fs_r, env);
+    let mstr: String = json_field_string(args, "mode");
+    if mstr == "dark" { dark = true; }
+    else if mstr == "light" { dark = false; }
+
+    let c: Color = theme_get_color_mode(tname, tok, dark);
+    let hex_val: String = color_to_hex_str(c);
+    let res: String = "{\"theme\":\"" + tname + "\",\"token\":\"" + tok + "\",\"mode\":\"" + (if dark { "dark" } else { "light" }) + "\",\"hex\":\"" + hex_val + "\",\"ansi16\":" + c.ansi16.to_string() + ",\"r\":" + c.r.to_string() + ",\"g\":" + c.g.to_string() + ",\"b\":" + c.b.to_string() + "}";
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + id + ",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"" + json_escape(res) + "\"}]}}";
+}
+
+fn dispatch_render_mascot(fs_r: &FsReadCap, env: &EnvCap, id: String, args: String) -> String {
+    let mut tname: String = json_field_string(args, "theme");
+    if tname == "" || tname == "auto" { tname = resolve_active_theme(fs_r, env); }
+    if !theme_is_valid(tname) { return build_error(id, -32602, "unknown theme: " + tname); }
+
+    let mut em: String = json_field_string(args, "emotion");
+    if em == "" { em = "happy"; }
+    em = normalize_emotion(em);
+
+    let m: Mascot = mascot_get(tname, em);
+    let art: String = m.line1 + "\n" + m.line2 + "\n" + m.line3 + "\n" + m.line4 + "\n";
+    let res: String = "{\"theme\":\"" + tname + "\",\"emotion\":\"" + em + "\",\"glyph\":\"" + m.glyph + "\",\"ascii_art\":\"" + json_escape(art) + "\"}";
+    return "{\"jsonrpc\":\"2.0\",\"id\":" + id + ",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"" + json_escape(res) + "\"}]}}";
+}
+
+pub fn handle_tool_call(fs_r: &FsReadCap, env: &EnvCap, id: String, req: String) -> String {
+    let params: String = json_field_raw(req, "params");
+    let name: String = json_field_string(params, "name");
+    let args: String = json_field_raw(params, "arguments");
+
+    if name == "list_themes" { return dispatch_list_themes(id); }
+    if name == "get_theme" { return dispatch_get_theme(fs_r, env, id, args); }
+    if name == "resolve_color" { return dispatch_resolve_color(fs_r, env, id, args); }
+    if name == "render_mascot" { return dispatch_render_mascot(fs_r, env, id, args); }
+
+    return build_error(id, -32601, "unknown tool: " + name);
+}

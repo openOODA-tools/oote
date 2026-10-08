@@ -1,0 +1,83 @@
+// # CLI Command Config - Theme and Mode Persistence
+//
+// Logline: Implements set, mode, and border configuration mutators.
+//
+// Setup: Requires FsReadCap, FsWriteCap, and EnvCap under sovereign capability discipline.
+//
+// Beats:
+//   1. Parse target theme, mode, or border shape arguments.
+//   2. Hydrate existing configuration file.
+//   3. Persist modified settings to ~/.openooda/theme.oot.
+//
+import "spec/theme_model.oo";
+import "presets/preset_registry.oo";
+import "render/border.oo";
+import "store/theme_config.oo";
+import "store/config_reader.oo";
+import "store/config_writer.oo";
+
+pub fn cmd_set(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, args: List[String]) -> Int {
+    let argc: Int = list_len(args);
+    if argc <= 1 {
+        print("oote: missing theme name argument\nUsage: oote set <name> [--dark|--light]\n");
+        return 1;
+    }
+    let target: String = list_get(args, 1);
+    if target != "auto" && !theme_is_valid(target) {
+        print("oote: unknown theme '" + target + "'\nRun 'oote list' to see available themes.\n");
+        return 1;
+    }
+    let c: String = read_config_content(fs_r, env);
+    let mut mode: String = parse_mode_from_oot(c);
+    if mode == "" { mode = "auto"; }
+    let mut border: String = parse_border_from_oot(c);
+    if border == "" { border = "round"; }
+    let mut i: Int = 2;
+    while i < argc {
+        let a: String = list_get(args, i);
+        if a == "--dark" { mode = "dark"; }
+        else if a == "--light" { mode = "light"; }
+        i = i + 1;
+    }
+    if !save_theme_config(fs_w, env, target, mode, border) {
+        print("oote: failed to write theme configuration\n");
+        return 2;
+    }
+    print("oote: global theme set to '" + target + "'\n");
+    return 0;
+}
+
+pub fn cmd_mode_border(fs_r: &FsReadCap, fs_w: &FsWriteCap, env: &EnvCap, verb: String, args: List[String]) -> Int {
+    let argc: Int = list_len(args);
+    let c: String = read_config_content(fs_r, env);
+    let mut t: String = parse_theme_from_oot(c);
+    if t == "" { t = "auto"; }
+    let mut m: String = parse_mode_from_oot(c);
+    if m == "" { m = "auto"; }
+    let mut b: String = parse_border_from_oot(c);
+    if b == "" { b = "round"; }
+    if verb == "border" {
+        if argc <= 1 { print(resolve_active_border(fs_r, env) + "\n"); return 0; }
+        let shape: String = list_get(args, 1);
+        if !border_is_valid(shape) {
+            print("oote: unknown border shape '" + shape + "'\nValid shapes: round, sharp, double, ascii\n");
+            return 1;
+        }
+        if !save_theme_config(fs_w, env, t, m, shape) { return 2; }
+        print("oote: border style set to '" + shape + "'\n");
+        return 0;
+    }
+    if argc <= 1 { print("oote: missing mode argument\nUsage: oote mode <toggle|light|dark|auto>\n"); return 1; }
+    let act: String = list_get(args, 1);
+    let new_m: String = if act == "toggle" { if resolve_active_mode(fs_r, env) { "light" } else { "dark" } }
+                        else if act == "light" || act == "dark" || act == "auto" { act }
+                        else { "" };
+    if new_m == "" {
+        print("oote: unknown mode '" + act + "'\nValid modes: toggle, light, dark, auto\n");
+        return 1;
+    }
+    if !save_theme_config(fs_w, env, t, new_m, b) { return 2; }
+    let msg: String = if act == "toggle" { "mode toggled to '" + new_m + "'\n" } else { "mode set to '" + new_m + "'\n" };
+    print("oote: " + msg);
+    return 0;
+}

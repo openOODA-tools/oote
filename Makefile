@@ -15,7 +15,7 @@ OODA_COMPILER ?= $(firstword $(wildcard $(HOME)/.openooda/bin/oodac $(CURDIR)/..
 OODACODEX ?= $(HOME)/.openooda/northstar.oot
 OO_LIST_AMBIENT_QUOTA ?= 8589934592
 BIN := dist/oote
-VERSION ?= 0.1.1
+VERSION ?= 0.2.0
 PREFIX ?= $(HOME)/.openooda/bin
 
 SRC := $(wildcard *.oo) $(wildcard */*.oo) $(wildcard */*/*.oo)
@@ -117,6 +117,7 @@ verify: line-cap file-law academy density check
 # --- Functional test suite ---------------------------------------------------
 
 test: $(BIN)
+	@echo "=== Tier 1: Core CLI Flags, Options, Formats & Theming ==="
 	@echo "=== testing --help ==="
 	@./$(BIN) --help > /dev/null && echo "PASS: --help"
 	@echo "=== testing --version ==="
@@ -167,6 +168,40 @@ test: $(BIN)
 	@echo "=== testing set ==="
 	@./$(BIN) set minimax --dark > /dev/null && echo "PASS: set minimax --dark"
 	@./$(BIN) set auto > /dev/null && echo "PASS: set auto"
+	@echo "=== Tier 2: MCP Handshake & Protocol Framing ==="
+	@printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n' | ./$(BIN) --mcp | grep -q "2024-11-05" && echo "PASS: MCP initialize protocolVersion"
+	@printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}\n' | ./$(BIN) --mcp | grep -q '"name":"oote","version":"0.2.0"' && echo "PASS: MCP initialize serverInfo"
+	@printf '{"jsonrpc":"2.0","id":2,"method":"ping","params":{}}\n' | ./$(BIN) --mcp | grep -q '"result":{}' && echo "PASS: MCP ping"
+	@printf '{"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}\n' | ./$(BIN) --mcp | grep -q "list_themes" && echo "PASS: MCP tools/list list_themes"
+	@printf '{"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}\n' | ./$(BIN) --mcp | grep -q "get_theme" && echo "PASS: MCP tools/list get_theme"
+	@printf '{"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}\n' | ./$(BIN) --mcp | grep -q "resolve_color" && echo "PASS: MCP tools/list resolve_color"
+	@printf '{"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}}\n' | ./$(BIN) --mcp | grep -q "render_mascot" && echo "PASS: MCP tools/list render_mascot"
+	@test -z "$$(printf '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}\n' | ./$(BIN) --mcp)" && echo "PASS: MCP notifications/initialized produces no response"
+	@printf '{"jsonrpc":"2.0","id":4,"method":"shutdown","params":{}}\n' | ./$(BIN) --mcp | grep -q '"result":null' && echo "PASS: MCP shutdown"
+	@test -z "$$(printf '{"jsonrpc":"2.0","method":"exit","params":{}}\n' | ./$(BIN) --mcp)" && echo "PASS: MCP exit terminates cleanly"
+	@test "$$(printf '{"jsonrpc":"2.0","id":1,"method":"ping","params":{}}{"jsonrpc":"2.0","id":2,"method":"ping","params":{}}\n' | ./$(BIN) --mcp | grep -c '"result":{}')" = "2" && echo "PASS: MCP concatenated JSON-RPC messages without newline"
+	@printf '{"jsonrpc":"2.0","id":99,"method":"ping","params":{}}' | ./$(BIN) --mcp | grep -q '"id":99' && echo "PASS: MCP request without trailing newline"
+	@(sleep 0.1 && printf '{"jsonrpc":"2.0","id":15,"method":"ping","params":{}}\n') | ./$(BIN) --mcp | grep -q '"result":{}' && echo "PASS: MCP stdio idle pause does not crash server"
+	@echo "=== Tier 3: All 4 MCP Tools & Execution Edge Cases ==="
+	@printf '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"list_themes","arguments":{}}}\n' | ./$(BIN) --mcp | grep -q 'minimax' && echo "PASS: MCP list_themes"
+	@printf '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"get_theme","arguments":{"theme":"dracula"}}}\n' | ./$(BIN) --mcp | grep -q 'ui_accent' && echo "PASS: MCP get_theme dracula"
+	@printf '{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"resolve_color","arguments":{"token":"ui_accent","theme":"nord"}}}\n' | ./$(BIN) --mcp | grep -q '#88c0d0' && echo "PASS: MCP resolve_color nord"
+	@printf '{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"render_mascot","arguments":{"theme":"minimax","emotion":"happy"}}}\n' | ./$(BIN) --mcp | grep -q 'ascii_art' && echo "PASS: MCP render_mascot minimax"
+	@echo "=== Tier 4: Negative Trust & Error Responses & Determinism & Smoke ==="
+	@printf 'invalid json string\n' | ./$(BIN) --mcp | grep -q -- "-32600" && echo "PASS: MCP invalid json exits -32600"
+	@printf '{"jsonrpc":"1.0","id":30,"method":"ping","params":{}}\n' | ./$(BIN) --mcp | grep -q -- "-32600" && echo "PASS: MCP invalid jsonrpc version exits -32600"
+	@printf '{"jsonrpc":"2.0","id":31,"method":"","params":{}}\n' | ./$(BIN) --mcp | grep -q -- "-32600" && echo "PASS: MCP empty method exits -32600"
+	@printf '{"jsonrpc":"2.0","id":32,"method":"nonexistent_method","params":{}}\n' | ./$(BIN) --mcp | grep -q -- "-32601" && echo "PASS: MCP unknown method exits -32601"
+	@printf '{"jsonrpc":"2.0","id":33,"method":"tools/call","params":{"name":"nonexistent_tool","arguments":{}}}\n' | ./$(BIN) --mcp | grep -q -- "-32601" && echo "PASS: MCP unknown tool exits -32601"
+	@printf '{"jsonrpc":"2.0","id":34,"method":"tools/call","params":{"name":"resolve_color","arguments":{}}}\n' | ./$(BIN) --mcp | grep -q -- "-32602" && echo "PASS: MCP resolve_color missing token exits -32602"
+	@run1="$$(printf '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}\n' | ./$(BIN) --mcp)"; \
+	run2="$$(printf '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}\n' | ./$(BIN) --mcp)"; \
+	test "$$run1" = "$$run2" && echo "PASS: determinism tools/list Run_1 == Run_2"
+	@run1="$$(printf '{"jsonrpc":"2.0","id":7,"method":"ping","params":{}}\n' | ./$(BIN) --mcp)"; \
+	run2="$$(printf '{"jsonrpc":"2.0","id":7,"method":"ping","params":{}}\n' | ./$(BIN) --mcp)"; \
+	test "$$run1" = "$$run2" && echo "PASS: determinism ping Run_1 == Run_2"
+	@./install.sh --dry-run > /dev/null && echo "PASS: install.sh --dry-run"
+	@./uninstall.sh --dry-run > /dev/null && echo "PASS: uninstall.sh --dry-run"
 	@echo "ALL TESTS PASSED"
 
 # --- Packaging targets --------------------------------------------------------

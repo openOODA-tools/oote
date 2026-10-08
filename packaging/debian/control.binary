@@ -1,5 +1,5 @@
 Package: oote
-Version: 0.1.1-1
+Version: 0.2.0-1
 Section: utils
 Priority: optional
 Architecture: amd64
@@ -7,4 +7,5 @@ Maintainer: openOODA-tools <ops@openooda.org>
 Description: Sovereign unified theming engine for openOODA
  oote is the sovereign unified theming and color styling engine for the
  openOODA ecosystem. It provides 25 seasonal and monthly themes, dual
- light/dark modes, custom border styles, and expressive ASCII mascots.
+ light/dark modes, custom border styles, expressive ASCII mascots,
+ and a streaming Model Context Protocol (MCP) server.

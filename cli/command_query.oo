@@ -1,0 +1,94 @@
+// # CLI Command Query - Theme Listing and Queries
+//
+// Logline: Implements help, list, and query subcommands for theme discovery.
+//
+// Setup: Requires FsReadCap and EnvCap under sovereign capability discipline.
+//
+// Beats:
+//   1. Display command help documentation.
+//   2. List all registered themes with active indicators.
+//   3. Query active theme name, mode, or specific semantic token.
+//
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+import "spec/token_names.oo";
+import "presets/preset_registry.oo";
+import "render/painter.oo";
+import "store/theme_config.oo";
+import "store/config_reader.oo";
+
+pub fn cmd_help() -> Int {
+    print("oote - openOODA theming engine (v0.2.0)\n\n" +
+          "Usage: oote <command> [arguments]\n\n" +
+          "Commands:\n" +
+          "  list                       List all registered themes\n" +
+          "  current [--mode]           Print active theme name or mode\n" +
+          "  preview [name] [flags]     Showcase palette, diffs, syntax, and mascot\n" +
+          "  set <name> [--dark|--light] Persist global theme to ~/.openooda/theme.oot\n" +
+          "  mode <toggle|light|dark|auto> Configure lighting mode\n" +
+          "  border [round|sharp|double|ascii] Get or set border shape\n" +
+          "  mascot [name] [emotion]    Render theme ASCII mascot\n" +
+          "  glyph [name] [emotion]     Print micro prompt glyph\n" +
+          "  get <token>                Display color and code for a semantic token\n" +
+          "  --mcp                      Launch Model Context Protocol stdio server\n" +
+          "  --help, -h                 Display this help documentation\n" +
+          "  --version, -v              Display version information\n");
+    return 0;
+}
+
+pub fn cmd_list(fs_r: &FsReadCap, env: &EnvCap, color_on: Bool, tc_on: Bool) -> Int {
+    let active: String = resolve_active_theme(fs_r, env);
+    let names: String = theme_list();
+    print("Available Themes:\n");
+    let mut rest: String = names;
+    while chars_len(rest) > 0 {
+        let trimmed: String = str_trim(rest);
+        if trimmed == "" { break; }
+        let mut sp_idx: Int = -1;
+        let n: Int = chars_len(trimmed);
+        let mut i: Int = 0;
+        while i < n {
+            if char_at(trimmed, i) == " " { sp_idx = i; break; }
+            i = i + 1;
+        }
+        let item: String = if sp_idx > 0 { str_slice(trimmed, 0, sp_idx) } else { trimmed };
+        rest = if sp_idx > 0 { str_slice(trimmed, sp_idx + 1, n) } else { "" };
+
+        let meta: ThemeMeta = theme_get_meta(item);
+        let acc: Color = theme_get_color(item, "ui_accent");
+        if item == active {
+            let marker: String = paint_bold("  * ", acc, color_on, tc_on);
+            let name_str: String = paint_bold(item, acc, color_on, tc_on);
+            print(marker + name_str + " - " + meta.description + " [active]\n");
+        } else {
+            print("    " + item + " - " + meta.description + "\n");
+        }
+    }
+    return 0;
+}
+
+pub fn cmd_query(fs_r: &FsReadCap, env: &EnvCap, is_get: Bool, arg: String, color_on: Bool, tc_on: Bool) -> Int {
+    if !is_get {
+        if arg == "--mode" || arg == "-m" {
+            let dark: Bool = resolve_active_mode(fs_r, env);
+            print(if dark { "dark\n" } else { "light\n" });
+            return 0;
+        }
+        if arg != "" {
+            print("oote: unknown option '" + arg + "'\nUsage: oote current [--mode]\n");
+            return 1;
+        }
+        print(resolve_active_theme(fs_r, env) + "\n");
+        return 0;
+    }
+    if arg == "" || !is_valid_token(arg) {
+        print("oote: unknown token '" + arg + "'\n");
+        return 1;
+    }
+    let active: String = resolve_active_theme(fs_r, env);
+    let dark: Bool = resolve_active_mode(fs_r, env);
+    let c: Color = theme_get_color_mode(active, arg, dark);
+    let sample: String = paint_bold("■■ " + arg, c, color_on, tc_on);
+    print(active + "." + arg + ": " + sample + " (ANSI " + c.ansi16.to_string() + ")\n");
+    return 0;
+}

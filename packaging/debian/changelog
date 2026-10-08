@@ -1,3 +1,9 @@
+oote (0.2.0-1) unstable; urgency=medium
+
+  * Elevate oote to S+ tier v0.2.0 with streaming MCP JSON-RPC 2.0 stdio server, 4 tools, and modular CLI.
+
+ -- openOODA-tools <ops@openooda.org>  Wed, 07 Oct 2026 19:50:00 -1000
+
 oote (0.1.1-1) unstable; urgency=medium
 
   * Align AGENTS.md, companion uninstaller (oote-uninstall), packaging parity across DNF, APT, and Arch.

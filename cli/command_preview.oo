@@ -1,0 +1,76 @@
+// # CLI Command Preview - Visual Preview and Mascots
+//
+// Logline: Implements preview, mascot, and prompt glyph render commands.
+//
+// Setup: Requires FsReadCap and EnvCap under sovereign capability discipline.
+//
+// Beats:
+//   1. Parse target theme, light/dark mode, and border arguments.
+//   2. Render showcase preview card or ASCII mascot vector.
+//   3. Manage ANSI escape sequences according to terminal capabilities.
+//
+import "spec/color_model.oo";
+import "spec/theme_model.oo";
+import "presets/preset_registry.oo";
+import "render/preview_card.oo";
+import "mascot/mascot_model.oo";
+import "mascot/mascot_registry.oo";
+import "store/theme_config.oo";
+
+pub fn cmd_preview(fs_r: &FsReadCap, env: &EnvCap, args: List[String], color_on: Bool, tc_on: Bool) -> Int {
+    let argc: Int = list_len(args);
+    let mut theme: String = "";
+    let mut dark: Bool = resolve_active_mode(fs_r, env);
+    let mut border: String = resolve_active_border(fs_r, env);
+    let mut i: Int = 1;
+    while i < argc {
+        let a: String = list_get(args, i);
+        if a == "--dark" { dark = true; }
+        else if a == "--light" { dark = false; }
+        else if a == "--border" && i + 1 < argc { i = i + 1; border = list_get(args, i); }
+        else if str_starts_with(a, "--border=") { border = str_slice(a, 9, chars_len(a)); }
+        else if !str_starts_with(a, "-") && theme == "" {
+            if a == "auto" { theme = resolve_active_theme(fs_r, env); }
+            else if theme_is_valid(a) { theme = a; }
+            else {
+                print("oote: unknown theme '" + a + "'\nRun 'oote list' to see available themes.\n");
+                return 1;
+            }
+        }
+        i = i + 1;
+    }
+    if theme == "" { theme = resolve_active_theme(fs_r, env); }
+    print(render_preview_card_full(theme, dark, border, color_on, tc_on));
+    return 0;
+}
+
+pub fn cmd_mascot_glyph(fs_r: &FsReadCap, env: &EnvCap, args: List[String], is_glyph: Bool, color_on: Bool, tc_on: Bool) -> Int {
+    let argc: Int = list_len(args);
+    let mut theme: String = "";
+    let mut emotion: String = if is_glyph { "idle" } else { "happy" };
+    if argc == 2 {
+        let a1: String = list_get(args, 1);
+        if is_valid_emotion(a1) { emotion = a1; }
+        else if a1 == "auto" { theme = resolve_active_theme(fs_r, env); }
+        else if theme_is_valid(a1) { theme = a1; }
+        else { print("oote: unknown theme '" + a1 + "'\nRun 'oote list' to see available themes.\n"); return 1; }
+    } else if argc >= 3 {
+        let a1: String = list_get(args, 1);
+        if a1 != "auto" && !theme_is_valid(a1) {
+            print("oote: unknown theme '" + a1 + "'\nRun 'oote list' to see available themes.\n");
+            return 1;
+        }
+        theme = if a1 == "auto" { resolve_active_theme(fs_r, env) } else { a1 };
+        emotion = list_get(args, 2);
+    }
+    if theme == "" { theme = resolve_active_theme(fs_r, env); }
+    if is_glyph {
+        print(mascot_glyph(theme, emotion) + "\n");
+        return 0;
+    }
+    let dark: Bool = resolve_active_mode(fs_r, env);
+    let acc: Color = theme_get_color_mode(theme, "ui_accent", dark);
+    let m: Mascot = mascot_get(theme, emotion);
+    print(mascot_render(m, color_on, tc_on, acc) + "\n");
+    return 0;
+}

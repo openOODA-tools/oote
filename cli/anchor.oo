@@ -1,0 +1,14 @@
+// # CLI Anchor - Subsystem Re-Export
+//
+// Logline: Unified export of all CLI command handlers and subcommands.
+//
+// Setup: Pure shim. Re-exports query, config, and preview command modules.
+//
+// Beats:
+//   1. Re-export command queries (list, current, get, help).
+//   2. Re-export command configuration (set, mode, border).
+//   3. Re-export command previews (preview, mascot, glyph).
+//
+import "command_query.oo";
+import "command_config.oo";
+import "command_preview.oo";

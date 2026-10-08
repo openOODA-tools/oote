@@ -1,0 +1,14 @@
+// # IPC Anchor - Subsystem Re-Export
+//
+// Logline: Unified re-export of MCP stdio streaming protocol and tool dispatch.
+//
+// Setup: Pure shim. Re-exports mcp_serve and tool_dispatch modules.
+//
+// Beats:
+//   1. Re-export MCP stdio server driver.
+//   2. Re-export tool dispatch definitions.
+//   3. Re-export JSON field extraction helpers.
+//
+import "mcp_serve.oo";
+import "tool_dispatch.oo";
+import "json_field.oo";

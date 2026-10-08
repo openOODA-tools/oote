@@ -1,7 +1,7 @@
 name=oote
-version=1.0.0
+version=0.2.0
 deps=
-caps=FsRead,Mcp
+caps=FsRead,FsWrite,Env,Process,Mcp
 license=Apache-2.0
 payload=main.oo
 commit=
